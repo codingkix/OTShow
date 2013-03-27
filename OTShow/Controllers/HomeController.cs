@@ -21,14 +21,14 @@ namespace OTShow.Controllers
             string result = string.Empty;
             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(requestUrl);
             httpWebRequest.Method = WebRequestMethods.Http.Get;
-            httpWebRequest.Accept = "application/json";
+            httpWebRequest.Accept = Helper.JSONTYPE;
 
             var response = httpWebRequest.GetResponse();
             using (var sr = new StreamReader(response.GetResponseStream()))
             {
                 result = sr.ReadToEnd();
             }
-            return new ContentResult { Content = result, ContentType = "application/json" };
+            return new ContentResult { Content = result, ContentType = Helper.JSONTYPE };
         }
     }
 }
