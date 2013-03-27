@@ -16,7 +16,7 @@ var timerOptions = {
 
 function initialGoogleMap() {
     var usCenter = new google.maps.LatLng(36.4230, -98.7372);
-    var euCenter = new google.maps.LatLng(50.4230, 9.7372);
+    var euCenter = new google.maps.LatLng(52.4230, 4.7372);
     var asiaCenter = new google.maps.LatLng(35.4230, 138.7372);
     var mapOptions = {
         zoom: 5,
