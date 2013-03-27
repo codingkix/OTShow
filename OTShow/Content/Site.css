@@ -1,24 +1,42 @@
-﻿
-/* Styles for HTML Tags
------------------------------------------------------------*/
-html {
+﻿html, body {
     height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
-body {
-    height: 100%;
-}
-
-
-/* Styles for layout
------------------------------------------------------------*/
 #main {
-    padding-bottom: 30px;
     padding-top: 30px;
+    padding-bottom: 30px;
     height: 100%;
-    position: relative;
+    background-color: whitesmoke;
 }
 
-#wrapper, #leftCol, #rightCol {
+#leftCol {
+    float: left;
+    width: 80%;
     height: 100%;
 }
+
+#rightCol {
+    float: right;
+    width: 20%;
+    height: 100%;
+}
+
+#topBanner {
+    height: 120px;
+}
+
+#usMapCanvas {
+    height: 100%;
+}
+
+#feeds {
+   
+}
+
+#pieChart {
+    
+}
+
+

@@ -9,7 +9,7 @@ function initialGoogleMap() {
         center: new google.maps.LatLng(-34.397, 150.644),
         mapTypeId: google.maps.MapTypeId.ROADMAP
     }
-    var map = new google.maps.Map(document.getElementById("mapCanvas"), mapOptions);
+    var map = new google.maps.Map(document.getElementById("usMapCanvas"), mapOptions);
 }
 
 function loadScript() {
@@ -21,6 +21,12 @@ function loadScript() {
 
 window.onload = loadScript;
 
+function getUSFeeds() {
+    $.getJSON('Home/GetFeeds', { region: 'us' }, function (data) {
+        alert(data.title);
+    });
+}
+
 $(document).ready(function(){
-   
+    getUSFeeds();
 })
