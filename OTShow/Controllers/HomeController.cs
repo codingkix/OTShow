@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using OTShow.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,6 +30,9 @@ namespace OTShow.Controllers
             {
                 result = sr.ReadToEnd();
             }
+
+            DataFeed feed = JsonConvert.DeserializeObject<DataFeed>(result);
+
             return new ContentResult { Content = result, ContentType = Helper.JSONTYPE };
         }
     }
