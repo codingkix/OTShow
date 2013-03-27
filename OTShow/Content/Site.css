@@ -8,7 +8,6 @@
     padding-top: 30px;
     padding-bottom: 30px;
     height: 100%;
-    background-color: whitesmoke;
 }
 
 #leftCol {
@@ -28,10 +27,25 @@
 }
 
 #usMapCanvas {
-    height: 100%;
+    height: 600px;
 }
 
-#feeds {
+#euMapCanvas, #asiaMapCanvas {
+    height: 400px;
+    padding-top: 20px;
+}
+
+#asiaMapCanvas {
+    width: 45%;
+    float: right;
+}
+
+#euMapCanvas {
+    width: 45%;
+    float: left;
+}
+
+#counters {
    
 }
 

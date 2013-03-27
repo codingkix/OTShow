@@ -17,7 +17,12 @@ namespace OTShow.Controllers
             return View();
         }
 
-        public ContentResult GetFeeds(string region)
+        /// <summary>
+        /// Private helper funtion to send HTTP request and fetch Json feed by region
+        /// </summary>
+        /// <param name="region"></param>
+        /// <returns></returns>
+        private DataFeed GetFeedsByRegion(string region)
         {
             string requestUrl = Helper.GetFeedsUrl(region);
             string result = string.Empty;
@@ -32,8 +37,39 @@ namespace OTShow.Controllers
             }
 
             DataFeed feed = JsonConvert.DeserializeObject<DataFeed>(result);
+            return feed;
+        }
 
-            return new ContentResult { Content = result, ContentType = Helper.JSONTYPE };
+        /// <summary>
+        /// Action API returnning Json feed by region
+        /// </summary>
+        /// <param name="region"></param>
+        /// <returns></returns>
+        public ContentResult GetJsonFeed(string region)
+        {
+            DataFeed feed = GetFeedsByRegion(region);
+            string jsonResult = JsonConvert.SerializeObject(feed);
+            return new ContentResult { Content = jsonResult, ContentType = Helper.JSONTYPE };
+        }
+
+        /// <summary>
+        /// Action API returning All Json data
+        /// </summary>
+        /// <returns></returns>
+        public ContentResult GetAllResults()
+        {
+            DataFeed usFeed = GetFeedsByRegion("us");
+            DataFeed euFeed = GetFeedsByRegion("eu");
+            DataFeed asiaFeed = GetFeedsByRegion("asia");
+
+            AllResults allResults = new AllResults{
+                USFeeds = usFeed,
+                EUFeeds = euFeed,
+                AsiaFeeds = asiaFeed
+            };
+
+            string jsonResult = JsonConvert.SerializeObject(allResults);
+            return new ContentResult { Content = jsonResult, ContentType = Helper.JSONTYPE };
         }
     }
 }

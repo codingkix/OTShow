@@ -132,6 +132,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helper.cs" />
+    <Compile Include="Models\AllResults.cs" />
     <Compile Include="Models\DataFeed.cs" />
     <Compile Include="Models\Reservation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -197,7 +198,9 @@
     <Content Include="Content\themes\base\minified\jquery.ui.tabs.min.css" />
     <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
     <Content Include="Content\themes\base\minified\jquery.ui.tooltip.min.css" />
-    <Content Include="Images\pin1.png" />
+    <Content Include="Images\pin_us.png" />
+    <Content Include="Images\pin_eu.png" />
+    <Content Include="Images\pin_asia.png" />
     <Content Include="Scripts\application.js" />
   </ItemGroup>
   <ItemGroup>
