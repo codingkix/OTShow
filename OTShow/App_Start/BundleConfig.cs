@@ -8,7 +8,8 @@ namespace OTShow
         // For more information on Bundling, visit http://go.microsoft.com/fwlink/?LinkId=254725
         public static void RegisterBundles(BundleCollection bundles)
         {
-            bundles.Add(new ScriptBundle("~/bundles/app").Include("~/Scripts/application.js")); 
+            bundles.Add(new ScriptBundle("~/bundles/app").Include("~/Scripts/application.js"));
+            bundles.Add(new ScriptBundle("~/bundles/highchart").Include("~/Scripts/highcharts.js").Include("~/Scripts/exporting.js"));
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/Scripts/jquery-{version}.js"));
 

@@ -51,31 +51,9 @@
     height: 100%;
 }
 
-/*#topBanner {
-    height: 120px;
-}
-
-#usMapCanvas {
-    height: 600px;
-}
-
-#euMapCanvas, #asiaMapCanvas {
-    height: 400px;
-    padding-top: 20px;
-}
-
-#asiaMapCanvas {
-    width: 45%;
-    float: right;
-}
-
-#euMapCanvas {
-    width: 45%;
-    float: left;
-}*/
-
 #counters {
 }
 
-#pieChart {
+#pieChart2 {
+    height: 400px;
 }

@@ -24,19 +24,27 @@ namespace OTShow.Controllers
         /// <returns></returns>
         private DataFeed GetFeedsByRegion(string region)
         {
+            DataFeed feed = null;
             string requestUrl = Helper.GetFeedsUrl(region);
             string result = string.Empty;
-            HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(requestUrl);
-            httpWebRequest.Method = WebRequestMethods.Http.Get;
-            httpWebRequest.Accept = Helper.JSONTYPE;
-
-            var response = httpWebRequest.GetResponse();
-            using (var sr = new StreamReader(response.GetResponseStream()))
+            try
             {
-                result = sr.ReadToEnd();
-            }
+                HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(requestUrl);
+                httpWebRequest.Method = WebRequestMethods.Http.Get;
+                httpWebRequest.Accept = Helper.JSONTYPE;
 
-            DataFeed feed = JsonConvert.DeserializeObject<DataFeed>(result);
+                var response = httpWebRequest.GetResponse();
+                using (var sr = new StreamReader(response.GetResponseStream()))
+                {
+                    result = sr.ReadToEnd();
+                }
+
+                feed = JsonConvert.DeserializeObject<DataFeed>(result);
+            }
+            catch (Exception ex)
+            {
+
+            }
             return feed;
         }
 
@@ -62,14 +70,17 @@ namespace OTShow.Controllers
             DataFeed euFeed = GetFeedsByRegion("eu");
             DataFeed asiaFeed = GetFeedsByRegion("asia");
             List<Reservation> allReservations = new List<Reservation>();
-            allReservations.AddRange(usFeed.reservations);
-            allReservations.AddRange(euFeed.reservations);
-            allReservations.AddRange(asiaFeed.reservations);
+            if (usFeed != null)
+                allReservations.AddRange(usFeed.reservations);
+            if (euFeed != null)
+                allReservations.AddRange(euFeed.reservations);
+            if (asiaFeed != null)
+                allReservations.AddRange(asiaFeed.reservations);
 
             //Revenue calculation
-            decimal usRevenue = Helper.CountRevenue(usFeed.reservations);
-            decimal euRevenue = Helper.CountRevenue(euFeed.reservations);
-            decimal asiaRevenue = Helper.CountRevenue(asiaFeed.reservations);
+            decimal usRevenue = usFeed != null ? Helper.CountRevenue(usFeed.reservations) : 0.00M;
+            decimal euRevenue = euFeed != null ? Helper.CountRevenue(euFeed.reservations) : 0.00M;
+            decimal asiaRevenue = asiaFeed != null ? Helper.CountRevenue(asiaFeed.reservations) : 0.00M;
 
             //Piechart calculation
 
@@ -87,18 +98,18 @@ namespace OTShow.Controllers
                 USFeeds = usFeed,
                 EUFeeds = euFeed,
                 AsiaFeeds = asiaFeed,
-                USReservationCount = usFeed.reservations.Count(),
-                EUReservationCount = euFeed.reservations.Count(),
-                AsiaReservationCount = asiaFeed.reservations.Count(),
+                USReservationCount = usFeed != null ? usFeed.reservations.Count() : 0,
+                EUReservationCount = euFeed != null ? euFeed.reservations.Count() : 0,
+                AsiaReservationCount = asiaFeed != null ? asiaFeed.reservations.Count() : 0,
                 USRevenue = usRevenue,
                 EURevenue = euRevenue,
                 AsiaRevenue = asiaRevenue,
-                ConsumerSiteCount=consumerSite,
-                MobileSiteCount=mobileSite,
-                iOSCount=iOS,
-                AndroidCount=android,
-                YelpCount=yelp,
-                OthersCount=others
+                ConsumerSiteCount = consumerSite,
+                MobileSiteCount = mobileSite,
+                iOSCount = iOS,
+                AndroidCount = android,
+                YelpCount = yelp,
+                OthersCount = others
             };
 
             string jsonResult = JsonConvert.SerializeObject(allResults);

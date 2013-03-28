@@ -12,7 +12,7 @@
 }
 
 var PieChartVars = {
-    tableReady:false,
+    tableReady: false,
     pieData: null,
     pieOptions: {
         title: 'Reservation Sources',
@@ -80,9 +80,9 @@ function starttimer() {
 
 function processData() {
     $.getJSON('Home/GetAllResults', function (result) {
-        processReservations(result.USFeeds.reservations, 'us');
-        processReservations(result.EUFeeds.reservations, 'eu');
-        processReservations(result.AsiaFeeds.reservations, 'asia');
+        processReservations(result.USFeeds, 'us');
+        processReservations(result.EUFeeds, 'eu');
+        processReservations(result.AsiaFeeds, 'asia');
 
         GlobalVars.revenue += result.TotalRevenue;
         GlobalVars.reservationCount += result.TotalReservation;
@@ -96,13 +96,14 @@ function processData() {
         PieChartVars.android += result.AndroidCount;
         PieChartVars.yelp += result.YelpCount;
         PieChartVars.others += result.OthersCount;
-        if(PieChartVars.tableReady)
-        drawChart();
+        if (PieChartVars.tableReady)
+            drawChart();
     });
 }
 
-function processReservations(reservations, region) {
-    if (reservations != null) {
+function processReservations(feeds, region) {
+    if (feeds != null) {
+        var reservations = feeds.reservations;
         for (var i = 0; i < reservations.length; i++) {
             var latlng = new google.maps.LatLng(reservations[i].latitude, reservations[i].longitude);
             addMarker(latlng, region);
@@ -149,6 +150,162 @@ function initialPieChart() {
     drawChart();
 }
 
+function initialPieChart2() {
+
+    Highcharts.theme = {
+        colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
+        chart: {
+            backgroundColor: {
+                linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+                stops: [
+                   [0, 'rgb(255, 255, 255)'],
+                   [1, 'rgb(240, 240, 255)']
+                ]
+            },
+            borderWidth: 1,
+            plotBackgroundColor: 'rgba(255, 255, 255, .9)',
+            plotShadow: true,
+            plotBorderWidth: 1
+        },
+        title: {
+            style: {
+                color: '#000',
+                font: 'bold 16px "Trebuchet MS", Verdana, sans-serif'
+            }
+        },
+        subtitle: {
+            style: {
+                color: '#666666',
+                font: 'bold 12px "Trebuchet MS", Verdana, sans-serif'
+            }
+        },
+        xAxis: {
+            gridLineWidth: 1,
+            lineColor: '#000',
+            tickColor: '#000',
+            labels: {
+                style: {
+                    color: '#000',
+                    font: '11px Trebuchet MS, Verdana, sans-serif'
+                }
+            },
+            title: {
+                style: {
+                    color: '#333',
+                    fontWeight: 'bold',
+                    fontSize: '12px',
+                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+
+                }
+            }
+        },
+        yAxis: {
+            minorTickInterval: 'auto',
+            lineColor: '#000',
+            lineWidth: 1,
+            tickWidth: 1,
+            tickColor: '#000',
+            labels: {
+                style: {
+                    color: '#000',
+                    font: '11px Trebuchet MS, Verdana, sans-serif'
+                }
+            },
+            title: {
+                style: {
+                    color: '#333',
+                    fontWeight: 'bold',
+                    fontSize: '12px',
+                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+                }
+            }
+        },
+        legend: {
+            itemStyle: {
+                font: '9pt Trebuchet MS, Verdana, sans-serif',
+                color: 'black'
+
+            },
+            itemHoverStyle: {
+                color: '#039'
+            },
+            itemHiddenStyle: {
+                color: 'gray'
+            }
+        },
+        labels: {
+            style: {
+                color: '#99b'
+            }
+        },
+
+        navigation: {
+            buttonOptions: {
+                theme: {
+                    stroke: '#CCCCCC'
+                }
+            }
+        }
+    };
+
+    // Apply the theme
+    var highchartsOptions = Highcharts.setOptions(Highcharts.theme);
+
+    // Radialize the colors
+    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
+        return {
+            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
+            stops: [
+                [0, color],
+                [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
+            ]
+        };
+    });
+
+    // Build the chart
+    $('#pieChart2').highcharts({
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false
+        },
+        title: {
+            text: 'Reservation Sources'
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage}%</b>',
+            percentageDecimals: 1
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: false,
+                },
+                showInLegend: true
+            }
+        },
+        series: [{
+            type: 'pie',
+            name: 'Reservation percent',
+            data: [
+                ['OpenTable.com', 45.0],
+                ['Mobile Site', 26.8],
+                {
+                    name: 'iOS',
+                    y: 12.8,
+                    sliced: true,
+                    selected: true
+                },
+                ['Android', 8.5],
+                ['Yelp', 6.2],
+                ['Others', 0.7]
+            ]
+        }]
+    });
+}
+
 function drawChart() {
     PieChartVars.pieData.setCell(0, 0, "OpenTable.com");
     PieChartVars.pieData.setCell(1, 0, "Mobile Site");
@@ -170,7 +327,7 @@ function drawChart() {
 window.onload = loadScript;
 
 $(document).ready(function () {
-    
+    initialPieChart2();
     // Set a callback to run when the Google Visualization API is loaded.
     google.setOnLoadCallback(initialPieChart);
 })
