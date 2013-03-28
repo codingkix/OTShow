@@ -92,7 +92,13 @@ namespace OTShow.Controllers
                 AsiaReservationCount = asiaFeed.reservations.Count(),
                 USRevenue = usRevenue,
                 EURevenue = euRevenue,
-                AsiaRevenue = asiaRevenue
+                AsiaRevenue = asiaRevenue,
+                ConsumerSiteCount=consumerSite,
+                MobileSiteCount=mobileSite,
+                iOSCount=iOS,
+                AndroidCount=android,
+                YelpCount=yelp,
+                OthersCount=others
             };
 
             string jsonResult = JsonConvert.SerializeObject(allResults);

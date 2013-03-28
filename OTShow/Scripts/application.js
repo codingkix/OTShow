@@ -12,6 +12,7 @@
 }
 
 var PieChartVars = {
+    tableReady:false,
     pieData: null,
     pieOptions: {
         'title': 'Reservation Sources',
@@ -19,12 +20,12 @@ var PieChartVars = {
         'height': 300
     },
     pieChart: null,
-    consumerSite: 0,
-    mobileSite: 0,
-    iOS: 0,
-    android: 0,
-    yelp: 0,
-    others: 0
+    consumerSite: 1,
+    mobileSite: 1,
+    iOS: 1,
+    android: 1,
+    yelp: 1,
+    others: 1
 }
 
 var timerOptions = {
@@ -94,7 +95,7 @@ function processData() {
         PieChartVars.android += result.AndroidCount;
         PieChartVars.yelp += result.YelpCount;
         PieChartVars.others += result.OthersCount;
-
+        if(PieChartVars.tableReady)
         drawChart();
     });
 }
@@ -141,8 +142,10 @@ function initialPieChart() {
     PieChartVars.pieData = new google.visualization.DataTable();
     PieChartVars.pieData.addColumn('string', 'Source');
     PieChartVars.pieData.addColumn('number', 'ReservationCount');
-    PieChartVars.pieData.addRow(6);
+    PieChartVars.pieData.addRows(6);
     PieChartVars.pieChart = new google.visualization.PieChart(document.getElementById('pieChart'));
+    PieChartVars.tableReady = true;
+    drawChart();
 }
 
 function drawChart() {
@@ -166,8 +169,7 @@ function drawChart() {
 window.onload = loadScript;
 
 $(document).ready(function () {
-    // Load the Visualization API and the piechart package.
-    google.load('visualization', '1.0', { 'packages': ['corechart'] });
+    
     // Set a callback to run when the Google Visualization API is loaded.
     google.setOnLoadCallback(initialPieChart);
 })
