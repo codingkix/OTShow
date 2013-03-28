@@ -26,7 +26,9 @@ var PieChartVars = {
     iOS: 1,
     android: 1,
     yelp: 1,
-    others: 1
+    others: 1,
+    highChartPie: null,
+    pieReady: false
 }
 
 var timerOptions = {
@@ -96,6 +98,10 @@ function processData() {
         PieChartVars.android += result.AndroidCount;
         PieChartVars.yelp += result.YelpCount;
         PieChartVars.others += result.OthersCount;
+
+        if (PieChartVars.pieReady)
+            updatePieChart();
+
         if (PieChartVars.tableReady)
             drawChart();
     });
@@ -272,9 +278,13 @@ function initialPieChart2() {
         title: {
             text: 'Reservation Sources'
         },
+        subtitle: {
+            text: 'Hover mouse to see details and click to get your slice'
+        },
         tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage}%</b>',
-            percentageDecimals: 1
+            formatter: function () {
+                return  this.point.name + ': <b>' + this.percentage.toFixed(2) + '%</b>' ;
+            }
         },
         plotOptions: {
             pie: {
@@ -290,20 +300,43 @@ function initialPieChart2() {
             type: 'pie',
             name: 'Reservation percent',
             data: [
-                ['OpenTable.com', 45.0],
-                ['Mobile Site', 26.8],
                 {
+                    id: 'opentable',
+                    name: 'OpenTable.com',
+                    y: PieChartVars.consumerSite
+                },
+                {
+                    id: 'mobilesite',
+                    name: 'Mobile Site',
+                    y: PieChartVars.mobileSite
+                },
+                {
+                    id: 'ios',
                     name: 'iOS',
-                    y: 12.8,
+                    y: PieChartVars.iOS,
                     sliced: true,
                     selected: true
                 },
-                ['Android', 8.5],
-                ['Yelp', 6.2],
-                ['Others', 0.7]
+                {
+                    id: 'android',
+                    name: 'Android',
+                    y: PieChartVars.android
+                },
+                {
+                    id: 'yelp',
+                    name: 'Yelp',
+                    y: PieChartVars.yelp
+                },
+                {
+                    id: 'others',
+                    name: 'Others',
+                    y: PieChartVars.others
+                }
             ]
         }]
     });
+    PieChartVars.highChartPie = $('#pieChart2').highcharts();
+    PieChartVars.pieReady = true;
 }
 
 function drawChart() {
@@ -322,6 +355,15 @@ function drawChart() {
     PieChartVars.pieData.setCell(5, 1, PieChartVars.others);
 
     PieChartVars.pieChart.draw(PieChartVars.pieData, PieChartVars.pieOptions);
+}
+
+function updatePieChart() {
+    PieChartVars.highChartPie.get('opentable').update(PieChartVars.consumerSite, true, true);
+    PieChartVars.highChartPie.get('mobilesite').update(PieChartVars.mobileSite, true, true);
+    PieChartVars.highChartPie.get('ios').update(PieChartVars.iOS, true, true);
+    PieChartVars.highChartPie.get('android').update(PieChartVars.android, true, true);
+    PieChartVars.highChartPie.get('yelp').update(PieChartVars.yelp, true, true);
+    PieChartVars.highChartPie.get('others').update(PieChartVars.others, true, true);
 }
 
 window.onload = loadScript;
