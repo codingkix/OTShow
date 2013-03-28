@@ -15,9 +15,10 @@ var PieChartVars = {
     tableReady:false,
     pieData: null,
     pieOptions: {
-        'title': 'Reservation Sources',
-        'width': 400,
-        'height': 300
+        title: 'Reservation Sources',
+        width: 400,
+        height: 300,
+        is3D: true
     },
     pieChart: null,
     consumerSite: 1,
