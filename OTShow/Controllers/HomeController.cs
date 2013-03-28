@@ -61,15 +61,26 @@ namespace OTShow.Controllers
             DataFeed usFeed = GetFeedsByRegion("us");
             DataFeed euFeed = GetFeedsByRegion("eu");
             DataFeed asiaFeed = GetFeedsByRegion("asia");
+            List<Reservation> allReservations = new List<Reservation>();
+            allReservations.AddRange(usFeed.reservations);
+            allReservations.AddRange(euFeed.reservations);
+            allReservations.AddRange(asiaFeed.reservations);
 
-            decimal usRevenue = usFeed.reservations.Count(r => r.billingtype == "standard") * Helper.StandardPay +
-                usFeed.reservations.Count(r => r.billingtype != "standard") * Helper.OtherPay;
+            //Revenue calculation
+            decimal usRevenue = Helper.CountRevenue(usFeed.reservations);
+            decimal euRevenue = Helper.CountRevenue(euFeed.reservations);
+            decimal asiaRevenue = Helper.CountRevenue(asiaFeed.reservations);
 
-            decimal euRevenue = euFeed.reservations.Count(r => r.billingtype == "standard") * Helper.StandardPay +
-    euFeed.reservations.Count(r => r.billingtype != "standard") * Helper.OtherPay;
+            //Piechart calculation
 
-            decimal asiaRevenue = asiaFeed.reservations.Count(r => r.billingtype == "standard") * Helper.StandardPay +
-    asiaFeed.reservations.Count(r => r.billingtype != "standard") * Helper.OtherPay;
+            int consumerSite = Helper.CountReservationSource(allReservations, "opentable.com");
+            int iOS = Helper.CountReservationSource(allReservations, "ipad");
+            iOS += Helper.CountReservationSource(allReservations, "iphone");
+            int android = Helper.CountReservationSource(allReservations, "android");
+            int mobileSite = Helper.CountReservationSource(allReservations, "mobile site");
+            int yelp = Helper.CountReservationSource(allReservations, "yelp");
+            int others = allReservations.Count - consumerSite - iOS - android - mobileSite - yelp;
+
 
             AllResults allResults = new AllResults
             {

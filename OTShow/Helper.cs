@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Configuration;
+using OTShow.Models;
 namespace OTShow
 {
     public class Helper
@@ -16,14 +17,25 @@ namespace OTShow
             switch(region)
             {
                 case "us":
-                    return ConfigurationSettings.AppSettings["USFeedsUrl"].ToString();
+                    return ConfigurationManager.AppSettings["USFeedsUrl"].ToString();
                 case "eu":
-                    return ConfigurationSettings.AppSettings["EUFeedsUrl"].ToString();
+                    return ConfigurationManager.AppSettings["EUFeedsUrl"].ToString();
                 case "asia":
-                    return ConfigurationSettings.AppSettings["AsiaFeedsUrl"].ToString();
+                    return ConfigurationManager.AppSettings["AsiaFeedsUrl"].ToString();
                 default:
-                    return ConfigurationSettings.AppSettings["USFeedsUrl"].ToString();
+                    return ConfigurationManager.AppSettings["USFeedsUrl"].ToString();
             }
+        }
+
+        public static decimal CountRevenue(List<Reservation> reservations)
+        {
+           return reservations.Count(r => r.billingtype == "standard") * Helper.StandardPay +
+                  reservations.Count(r => r.billingtype != "standard") * Helper.OtherPay;
+        }
+
+        public static int CountReservationSource(List<Reservation> reservations, string sourceName)
+        {
+            return reservations.Count(r => r.partnername.ToLower().Contains(sourceName));
         }
     }
 }

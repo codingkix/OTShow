@@ -11,10 +11,27 @@
     reservationCount: 0
 }
 
+var PieChartVars = {
+    pieData: null,
+    pieOptions: {
+        'title': 'Reservation Sources',
+        'width': 400,
+        'height': 300
+    },
+    pieChart: null,
+    consumerSite: 0,
+    mobileSite: 0,
+    iOS: 0,
+    android: 0,
+    yelp: 0,
+    others: 0
+}
+
 var timerOptions = {
     time: 60000,
     autostart: true
 }
+
 
 function initialGoogleMap() {
     var usCenter = new google.maps.LatLng(36.4230, -98.7372);
@@ -70,6 +87,15 @@ function processData() {
 
         $('#revenueCounter').text('$' + GlobalVars.revenue);
         $('#reservationCounter').text(GlobalVars.reservationCount);
+
+        PieChartVars.consumerSite += result.ConsumerSiteCount;
+        PieChartVars.mobileSite += result.MobileSiteCount;
+        PieChartVars.iOS += result.iOSCount;
+        PieChartVars.android += result.AndroidCount;
+        PieChartVars.yelp += result.YelpCount;
+        PieChartVars.others += result.OthersCount;
+
+        drawChart();
     });
 }
 
@@ -111,8 +137,37 @@ function getFeeds(region) {
     });
 }
 
+function initialPieChart() {
+    PieChartVars.pieData = new google.visualization.DataTable();
+    PieChartVars.pieData.addColumn('string', 'Source');
+    PieChartVars.pieData.addColumn('number', 'ReservationCount');
+    PieChartVars.pieData.addRow(6);
+    PieChartVars.pieChart = new google.visualization.PieChart(document.getElementById('pieChart'));
+}
+
+function drawChart() {
+    PieChartVars.pieData.setCell(0, 0, "OpenTable.com");
+    PieChartVars.pieData.setCell(1, 0, "Mobile Site");
+    PieChartVars.pieData.setCell(2, 0, "iOS");
+    PieChartVars.pieData.setCell(3, 0, "Android");
+    PieChartVars.pieData.setCell(4, 0, "Yelp");
+    PieChartVars.pieData.setCell(5, 0, "Others");
+
+    PieChartVars.pieData.setCell(0, 1, PieChartVars.consumerSite);
+    PieChartVars.pieData.setCell(1, 1, PieChartVars.mobileSite);
+    PieChartVars.pieData.setCell(2, 1, PieChartVars.iOS);
+    PieChartVars.pieData.setCell(3, 1, PieChartVars.android);
+    PieChartVars.pieData.setCell(4, 1, PieChartVars.yelp);
+    PieChartVars.pieData.setCell(5, 1, PieChartVars.others);
+
+    PieChartVars.pieChart.draw(PieChartVars.pieData, PieChartVars.pieOptions);
+}
+
 window.onload = loadScript;
 
 $(document).ready(function () {
-    //getUSFeeds();
+    // Load the Visualization API and the piechart package.
+    google.load('visualization', '1.0', { 'packages': ['corechart'] });
+    // Set a callback to run when the Google Visualization API is loaded.
+    google.setOnLoadCallback(initialPieChart);
 })
