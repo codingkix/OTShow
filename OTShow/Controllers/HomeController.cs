@@ -62,10 +62,26 @@ namespace OTShow.Controllers
             DataFeed euFeed = GetFeedsByRegion("eu");
             DataFeed asiaFeed = GetFeedsByRegion("asia");
 
-            AllResults allResults = new AllResults{
+            decimal usRevenue = usFeed.reservations.Count(r => r.billingtype == "standard") * Helper.StandardPay +
+                usFeed.reservations.Count(r => r.billingtype != "standard") * Helper.OtherPay;
+
+            decimal euRevenue = euFeed.reservations.Count(r => r.billingtype == "standard") * Helper.StandardPay +
+    euFeed.reservations.Count(r => r.billingtype != "standard") * Helper.OtherPay;
+
+            decimal asiaRevenue = asiaFeed.reservations.Count(r => r.billingtype == "standard") * Helper.StandardPay +
+    asiaFeed.reservations.Count(r => r.billingtype != "standard") * Helper.OtherPay;
+
+            AllResults allResults = new AllResults
+            {
                 USFeeds = usFeed,
                 EUFeeds = euFeed,
-                AsiaFeeds = asiaFeed
+                AsiaFeeds = asiaFeed,
+                USReservationCount = usFeed.reservations.Count(),
+                EUReservationCount = euFeed.reservations.Count(),
+                AsiaReservationCount = asiaFeed.reservations.Count(),
+                USRevenue = usRevenue,
+                EURevenue = euRevenue,
+                AsiaRevenue = asiaRevenue
             };
 
             string jsonResult = JsonConvert.SerializeObject(allResults);

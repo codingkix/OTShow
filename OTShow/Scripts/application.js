@@ -6,7 +6,9 @@
     asiaMap: null,
     usReady: false,
     euReady: false,
-    asiaReady: false
+    asiaReady: false,
+    revenue: 0.0,
+    reservationCount: 0
 }
 
 var timerOptions = {
@@ -17,7 +19,7 @@ var timerOptions = {
 function initialGoogleMap() {
     var usCenter = new google.maps.LatLng(36.4230, -98.7372);
     var euCenter = new google.maps.LatLng(52.4230, 4.7372);
-    var asiaCenter = new google.maps.LatLng(35.4230, 138.7372);
+    var asiaCenter = new google.maps.LatLng(36.4230, 142.7372);
     var mapOptions = {
         zoom: 5,
         mapTypeId: google.maps.MapTypeId.ROADMAP
@@ -62,6 +64,12 @@ function processData() {
         processReservations(result.USFeeds.reservations, 'us');
         processReservations(result.EUFeeds.reservations, 'eu');
         processReservations(result.AsiaFeeds.reservations, 'asia');
+
+        GlobalVars.revenue += result.TotalRevenue;
+        GlobalVars.reservationCount += result.TotalReservation;
+
+        $('#revenueCounter').text('$' + GlobalVars.revenue);
+        $('#reservationCounter').text(GlobalVars.reservationCount);
     });
 }
 

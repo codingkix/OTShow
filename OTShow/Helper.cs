@@ -8,6 +8,9 @@ namespace OTShow
     public class Helper
     {
         public const string JSONTYPE = "application/json";
+        public const int StandardPay = 1;
+        public const decimal OtherPay = 0.25M;
+
         public static string GetFeedsUrl(string region)
         {
             switch(region)

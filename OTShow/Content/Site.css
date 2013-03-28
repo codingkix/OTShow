@@ -1,19 +1,16 @@
-﻿html, body {
+﻿html, body, #main {
     height: 100%;
     margin: 0;
     padding: 0;
-}
-
-#main {
-    padding-top: 30px;
-    padding-bottom: 30px;
-    height: 100%;
 }
 
 #leftCol {
     float: left;
     width: 80%;
     height: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    border-color: transparent;
 }
 
 #rightCol {
@@ -22,7 +19,39 @@
     height: 100%;
 }
 
-#topBanner {
+#row1 {
+    height: 10%;
+}
+
+    #row1 td {
+        padding: 30px 10px 10px 20px;
+    }
+
+#row2 {
+    height: 60%;
+}
+
+    #row2 td {
+        padding: 10px 10px 10px 20px;
+    }
+
+#row3 {
+    height: 30%;
+}
+
+    #row3 td:first-child {
+        padding: 10px 10px 30px 20px;
+    }
+
+    #row3 td:last-child {
+        padding: 10px 10px 30px 10px;
+    }
+
+#usMapCanvas, #euMapCanvas, #asiaMapCanvas, #topFlowChart {
+    height: 100%;
+}
+
+/*#topBanner {
     height: 120px;
 }
 
@@ -43,14 +72,10 @@
 #euMapCanvas {
     width: 45%;
     float: left;
-}
+}*/
 
 #counters {
-   
 }
 
 #pieChart {
-    
 }
-
-
