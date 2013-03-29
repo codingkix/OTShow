@@ -64,8 +64,9 @@ namespace OTShow.Controllers
         /// Action API returning All Json data
         /// </summary>
         /// <returns></returns>
-        public ContentResult GetAllResults()
+        public ContentResult GetAllResults(string startPoint)
         {
+            DateTime start = Convert.ToDateTime(startPoint);
             DataFeed usFeed = GetFeedsByRegion("us");
             DataFeed euFeed = GetFeedsByRegion("eu");
             DataFeed asiaFeed = GetFeedsByRegion("asia");
@@ -83,7 +84,6 @@ namespace OTShow.Controllers
             decimal asiaRevenue = asiaFeed != null ? Helper.CountRevenue(asiaFeed.reservations) : 0.00M;
 
             //Piechart calculation
-
             int consumerSite = Helper.CountReservationSource(allReservations, "opentable.com");
             int iOS = Helper.CountReservationSource(allReservations, "ipad");
             iOS += Helper.CountReservationSource(allReservations, "iphone");
@@ -92,6 +92,18 @@ namespace OTShow.Controllers
             int yelp = Helper.CountReservationSource(allReservations, "yelp");
             int others = allReservations.Count - consumerSite - iOS - android - mobileSite - yelp;
 
+            //timeflow calculation
+            List<TimeGroupCount> groupCounts = (from resv in allReservations
+                                                group resv by resv.shiftdatetime.ToUniversalTime().Date
+                                                    into timeGroup
+                                                    orderby timeGroup.Key
+                                                    select
+                                                    new TimeGroupCount
+                                                    {
+                                                        GroupTime = timeGroup.Key,
+                                                        CountValue = timeGroup.Count(),
+                                                        ItemIndex = Helper.GetTimeDifference(start, timeGroup.Key)
+                                                    }).ToList();
 
             AllResults allResults = new AllResults
             {
@@ -109,7 +121,8 @@ namespace OTShow.Controllers
                 iOSCount = iOS,
                 AndroidCount = android,
                 YelpCount = yelp,
-                OthersCount = others
+                OthersCount = others,
+                TimeGroupCounts = groupCounts
             };
 
             string jsonResult = JsonConvert.SerializeObject(allResults);

@@ -27,5 +27,7 @@ namespace OTShow.Models
         public int MobileSiteCount { get; set; }
         public int YelpCount { get; set; }
         public int OthersCount { get; set; }
+
+        public List<TimeGroupCount> TimeGroupCounts { get; set; }
     }
 }

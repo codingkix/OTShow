@@ -37,5 +37,10 @@ namespace OTShow
         {
             return reservations.Count(r => r.partnername.ToLower().Contains(sourceName));
         }
+
+        public static int GetTimeDifference(DateTime startPoint, DateTime date)
+        {
+            return Convert.ToInt32(date.Subtract(startPoint).TotalDays);
+        }
     }
 }

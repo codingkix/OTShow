@@ -8,7 +8,9 @@
     euReady: false,
     asiaReady: false,
     revenue: 0.0,
-    reservationCount: 0
+    reservationCount: 0,
+    startPoint: new Date(),
+    startDateUTC: null
 }
 
 var PieChartVars = {
@@ -29,6 +31,11 @@ var PieChartVars = {
     others: 1,
     highChartPie: null,
     pieReady: false
+}
+
+var TimeChartVars = {
+    timeChart: null,
+    maxRange: 365       //one year data
 }
 
 var timerOptions = {
@@ -76,12 +83,12 @@ function loadScript() {
 
 function starttimer() {
     if (GlobalVars.usReady && GlobalVars.euReady && GlobalVars.asiaReady) {
-        GlobalVars.timer = $.timer(processData, timerOptions.time, timerOptions.autostart).once();
+        GlobalVars.timer = $.timer(fetchDataFeeds, timerOptions.time, timerOptions.autostart).once();
     }
 }
 
-function processData() {
-    $.getJSON('Home/GetAllResults', function (result) {
+function fetchDataFeeds() {
+    $.getJSON('Home/GetAllResults', { startPoint: GlobalVars.startPoint.toUTCString() }, function (result) {
         processReservations(result.USFeeds, 'us');
         processReservations(result.EUFeeds, 'eu');
         processReservations(result.AsiaFeeds, 'asia');
@@ -102,8 +109,8 @@ function processData() {
         if (PieChartVars.pieReady)
             updatePieChart();
 
-        if (PieChartVars.tableReady)
-            drawChart();
+        updateTimeChart(result.TimeGroupCounts);
+
     });
 }
 
@@ -135,16 +142,16 @@ function addMarker(latlng, region) {
     });
 }
 
-function getFeeds(region) {
-    $.getJSON('Home/GetJsonFeed', { region: region }, function (data) {
-        if (data != null) {
-            for (var i = 0; i < data.reservations.length; i++) {
-                var latlng = new google.maps.LatLng(data.reservations[i].latitude, data.reservations[i].longitude);
-                addMarker(latlng);
-            }
-        }
-    });
-}
+//function getFeeds(region) {
+//    $.getJSON('Home/GetJsonFeed', { region: region }, function (data) {
+//        if (data != null) {
+//            for (var i = 0; i < data.reservations.length; i++) {
+//                var latlng = new google.maps.LatLng(data.reservations[i].latitude, data.reservations[i].longitude);
+//                addMarker(latlng);
+//            }
+//        }
+//    });
+//}
 
 function initialPieChart() {
     PieChartVars.pieData = new google.visualization.DataTable();
@@ -156,7 +163,7 @@ function initialPieChart() {
     drawChart();
 }
 
-function initialPieChart2() {
+function createPieChart() {
 
     Highcharts.theme = {
         colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
@@ -283,7 +290,7 @@ function initialPieChart2() {
         },
         tooltip: {
             formatter: function () {
-                return  this.point.name + ': <b>' + this.percentage.toFixed(2) + '%</b>' ;
+                return this.point.name + ': <b>' + this.percentage.toFixed(2) + '%</b>';
             }
         },
         plotOptions: {
@@ -366,10 +373,206 @@ function updatePieChart() {
     PieChartVars.highChartPie.get('others').update(PieChartVars.others, true, true);
 }
 
+function createTimeChart() {
+    Highcharts.theme = {
+        colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
+        chart: {
+            backgroundColor: {
+                linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+                stops: [
+                   [0, 'rgb(255, 255, 255)'],
+                   [1, 'rgb(240, 240, 255)']
+                ]
+            },
+            borderWidth: 2,
+            plotBackgroundColor: 'rgba(255, 255, 255, .9)',
+            plotShadow: true,
+            plotBorderWidth: 1
+        },
+        title: {
+            style: {
+                color: '#000',
+                font: 'bold 16px "Trebuchet MS", Verdana, sans-serif'
+            }
+        },
+        subtitle: {
+            style: {
+                color: '#666666',
+                font: 'bold 12px "Trebuchet MS", Verdana, sans-serif'
+            }
+        },
+        xAxis: {
+            gridLineWidth: 1,
+            lineColor: '#000',
+            tickColor: '#000',
+            labels: {
+                style: {
+                    color: '#000',
+                    font: '11px Trebuchet MS, Verdana, sans-serif'
+                }
+            },
+            title: {
+                style: {
+                    color: '#333',
+                    fontWeight: 'bold',
+                    fontSize: '12px',
+                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+
+                }
+            }
+        },
+        yAxis: {
+            minorTickInterval: 'auto',
+            lineColor: '#000',
+            lineWidth: 1,
+            tickWidth: 1,
+            tickColor: '#000',
+            labels: {
+                style: {
+                    color: '#000',
+                    font: '11px Trebuchet MS, Verdana, sans-serif'
+                }
+            },
+            title: {
+                style: {
+                    color: '#333',
+                    fontWeight: 'bold',
+                    fontSize: '12px',
+                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+                }
+            }
+        },
+        legend: {
+            itemStyle: {
+                font: '9pt Trebuchet MS, Verdana, sans-serif',
+                color: 'black'
+
+            },
+            itemHoverStyle: {
+                color: '#039'
+            },
+            itemHiddenStyle: {
+                color: 'gray'
+            }
+        },
+        labels: {
+            style: {
+                color: '#99b'
+            }
+        },
+
+        navigation: {
+            buttonOptions: {
+                theme: {
+                    stroke: '#CCCCCC'
+                }
+            }
+        }
+    };
+
+    // Apply the theme
+    var highchartsOptions = Highcharts.setOptions(Highcharts.theme);
+
+    $('#timeFlowChart').highcharts({
+        chart: {
+            zoomType: 'x',
+            spacingRight: 10
+        },
+        title: {
+            text: 'Reservation Timeline'
+        },
+        subtitle: {
+            text: document.ontouchstart === undefined ?
+                'Click and drag in the plot area to zoom in' :
+                'Drag your finger over the plot to zoom in'
+        },
+        xAxis: {
+            type: 'datetime',
+            maxZoom: 14 * 24 * 3600000, // fourteen days
+            title: {
+                text: null
+            }
+        },
+        yAxis: {
+            title: {
+                text: 'Reservation Counts'
+            }
+        },
+        tooltip: {
+            shared: true
+        },
+        legend: {
+            enabled: false
+        },
+        plotOptions: {
+            area: {
+                fillColor: {
+                    linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                    stops: [
+                        [0, Highcharts.getOptions().colors[0]],
+                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                    ]
+                },
+                lineWidth: 1,
+                marker: {
+                    enabled: false
+                },
+                shadow: false,
+                states: {
+                    hover: {
+                        lineWidth: 1
+                    }
+                },
+                threshold: null
+            }
+        },
+        series: [{
+            type: 'area',
+            name: 'Reservation count',
+            pointInterval: 24 * 3600 * 1000,
+            pointStart: GlobalVars.startDateUTC,
+            data: []
+        }]
+    });
+
+    TimeChartVars.timeChart = $('#timeFlowChart').highcharts();
+}
+
+function updateTimeChart(groupCounts) {
+    var currentData = TimeChartVars.timeChart.series[0].data;
+    var size = groupCounts.length;
+    var max = groupCounts[size - 1].ItemIndex;
+    //hold one year data for now
+    if (max > TimeChartVars.maxRange)
+        max = TimeChartVars.maxRange;
+    var start =null;
+    for (var i = currentData.length; i <= max; i++) {
+        if (currentData[i] == null) {
+            //reset start point to calculate new point date
+            start = new Date(GlobalVars.startPoint.valueOf());
+            TimeChartVars.timeChart.series[0].addPoint([start.setDate(start.getDate() + i - 1), 0]);
+        }
+    }
+
+    for (var j = 0; j < groupCounts.length; j++) {
+        var item = groupCounts[j];
+        if (item.ItemIndex >= 0 && item.ItemIndex <= TimeChartVars.maxRange) {
+            var y = currentData[item.ItemIndex].y;
+            currentData[item.ItemIndex].update(item.CountValue + y, true);
+        }
+    }
+}
+
+function convertUTCDate(date) {
+    return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+}
+
 window.onload = loadScript;
 
 $(document).ready(function () {
-    initialPieChart2();
+    GlobalVars.startDateUTC = convertUTCDate(GlobalVars.startPoint);
+    createPieChart();
+    createTimeChart();
     // Set a callback to run when the Google Visualization API is loaded.
-    google.setOnLoadCallback(initialPieChart);
+    // google.setOnLoadCallback(initialPieChart);
 })
