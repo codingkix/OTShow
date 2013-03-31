@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
     @Styles.Render("~/Content/css")
+    @Styles.Render("~/Content/themes/base/css")
     @Scripts.Render("~/bundles/modernizr")
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
@@ -16,8 +17,8 @@
     @RenderBody()
 
     @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/highchart")
-    @Scripts.Render("~/bundles/jquerytimer")
+    @Scripts.Render("~/bundles/jqueryui")
+   
     @Scripts.Render("~/bundles/app")
 
     @RenderSection("scripts", required: false)

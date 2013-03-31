@@ -7,22 +7,16 @@
     usReady: false,
     euReady: false,
     asiaReady: false,
-    revenue: 0.0,
+    revenue: 0.00,
+    prevRevenue: 0.00,
     reservationCount: 0,
+    prevReservCount: 0,
     startPoint: new Date(),
-    startDateUTC: null
+    startDateUTC: null,
+    showUsMap: true
 }
 
 var PieChartVars = {
-    tableReady: false,
-    pieData: null,
-    pieOptions: {
-        title: 'Reservation Sources',
-        width: 400,
-        height: 300,
-        is3D: true
-    },
-    pieChart: null,
     consumerSite: 1,
     mobileSite: 1,
     iOS: 1,
@@ -35,11 +29,12 @@ var PieChartVars = {
 
 var TimeChartVars = {
     timeChart: null,
-    maxRange: 365       //one year data
+    maxRange: 14       //two weeks data
 }
 
 var timerOptions = {
     time: 60000,
+    toogleTime: 0.15 * 60000,
     autostart: true
 }
 
@@ -94,10 +89,12 @@ function fetchDataFeeds() {
         processReservations(result.AsiaFeeds, 'asia');
 
         GlobalVars.revenue += result.TotalRevenue;
+        GlobalVars.prevReservCount = GlobalVars.reservationCount;
         GlobalVars.reservationCount += result.TotalReservation;
 
-        $('#revenueCounter').text('$' + GlobalVars.revenue);
-        $('#reservationCounter').text(GlobalVars.reservationCount);
+        updateCounters();
+        //$('#revenueCounter').text('$' + GlobalVars.revenue);
+        //$('#reservationCounter').text(GlobalVars.reservationCount);
 
         PieChartVars.consumerSite += result.ConsumerSiteCount;
         PieChartVars.mobileSite += result.MobileSiteCount;
@@ -119,12 +116,12 @@ function processReservations(feeds, region) {
         var reservations = feeds.reservations;
         for (var i = 0; i < reservations.length; i++) {
             var latlng = new google.maps.LatLng(reservations[i].latitude, reservations[i].longitude);
-            addMarker(latlng, region);
+            addMarker(latlng, region, reservations[i].restaurantname, reservations[i].partysize);
         }
     }
 }
 
-function addMarker(latlng, region) {
+function addMarker(latlng, region, restName, partySize) {
     var map;
     if (region == 'us')
         map = GlobalVars.usMap;
@@ -133,34 +130,24 @@ function addMarker(latlng, region) {
     if (region == 'asia')
         map = GlobalVars.asiaMap;
 
-    new google.maps.Marker({
+    var marker = new google.maps.Marker({
         position: latlng,
         map: map,
         draggable: false,
         animation: google.maps.Animation.DROP,
         icon: 'Images/pin_' + region + '.png'
     });
-}
 
-//function getFeeds(region) {
-//    $.getJSON('Home/GetJsonFeed', { region: region }, function (data) {
-//        if (data != null) {
-//            for (var i = 0; i < data.reservations.length; i++) {
-//                var latlng = new google.maps.LatLng(data.reservations[i].latitude, data.reservations[i].longitude);
-//                addMarker(latlng);
-//            }
-//        }
-//    });
-//}
+    var infoWindows = new google.maps.InfoWindow(
+        {
+            content: '<div class="infoBox"><p class="name">' + restName +
+                '</p><p>Party size:<strong>' + partySize + '</strong></p></div>',
+            maxWidth: 100
+        });
 
-function initialPieChart() {
-    PieChartVars.pieData = new google.visualization.DataTable();
-    PieChartVars.pieData.addColumn('string', 'Source');
-    PieChartVars.pieData.addColumn('number', 'ReservationCount');
-    PieChartVars.pieData.addRows(6);
-    PieChartVars.pieChart = new google.visualization.PieChart(document.getElementById('pieChart'));
-    PieChartVars.tableReady = true;
-    drawChart();
+    google.maps.event.addListener(marker, 'click', function () {
+        infoWindows.open(map, marker);
+    });
 }
 
 function createPieChart() {
@@ -286,7 +273,7 @@ function createPieChart() {
             text: 'Reservation Sources'
         },
         subtitle: {
-            text: 'Hover mouse to see details and click to get your slice'
+            text: 'Hover to see details and click to get your slice'
         },
         tooltip: {
             formatter: function () {
@@ -365,12 +352,12 @@ function drawChart() {
 }
 
 function updatePieChart() {
-    PieChartVars.highChartPie.get('opentable').update(PieChartVars.consumerSite, true, true);
-    PieChartVars.highChartPie.get('mobilesite').update(PieChartVars.mobileSite, true, true);
-    PieChartVars.highChartPie.get('ios').update(PieChartVars.iOS, true, true);
-    PieChartVars.highChartPie.get('android').update(PieChartVars.android, true, true);
-    PieChartVars.highChartPie.get('yelp').update(PieChartVars.yelp, true, true);
-    PieChartVars.highChartPie.get('others').update(PieChartVars.others, true, true);
+    PieChartVars.highChartPie.get('opentable').update(PieChartVars.consumerSite, true);
+    PieChartVars.highChartPie.get('mobilesite').update(PieChartVars.mobileSite, true);
+    PieChartVars.highChartPie.get('ios').update(PieChartVars.iOS, true);
+    PieChartVars.highChartPie.get('android').update(PieChartVars.android, true);
+    PieChartVars.highChartPie.get('yelp').update(PieChartVars.yelp, true);
+    PieChartVars.highChartPie.get('others').update(PieChartVars.others, true);
 }
 
 function createTimeChart() {
@@ -384,7 +371,7 @@ function createTimeChart() {
                    [1, 'rgb(240, 240, 255)']
                 ]
             },
-            borderWidth: 2,
+            borderWidth: 1,
             plotBackgroundColor: 'rgba(255, 255, 255, .9)',
             plotShadow: true,
             plotBorderWidth: 1
@@ -476,7 +463,7 @@ function createTimeChart() {
     $('#timeFlowChart').highcharts({
         chart: {
             zoomType: 'x',
-            spacingRight: 10
+            spacingRight: 20
         },
         title: {
             text: 'Reservation Timeline'
@@ -545,7 +532,7 @@ function updateTimeChart(groupCounts) {
     //hold one year data for now
     if (max > TimeChartVars.maxRange)
         max = TimeChartVars.maxRange;
-    var start =null;
+    var start = null;
     for (var i = currentData.length; i <= max; i++) {
         if (currentData[i] == null) {
             //reset start point to calculate new point date
@@ -567,12 +554,73 @@ function convertUTCDate(date) {
     return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 }
 
+function toggleRow1() {
+    var option = {};
+    if (GlobalVars.showUsMap) {
+        BV
+        $('#usMapCanvas').hide('slide', option, 500, function () { $('#timeFlowChart').show('slide', option, 400) });
+        GlobalVars.showUsMap = false;
+    } else {
+        $('#timeFlowChart').hide('slide', option, 500, function () { $('#usMapCanvas').show('slide', option, 400) });
+        GlobalVars.showUsMap = true;
+    }
+
+}
+
+function updateCounters() {
+    $('#reservationCounter').flipCounter(
+        "startAnimation", // scroll counter from the current number to the specified number
+        {
+            end_number: GlobalVars.reservationCount, // the number we want the counter to scroll to
+            easing: jQuery.easing.easeOutCubic, // this easing function to apply to the scroll.
+            duration: 50000, // number of ms animation should take to complete  20 sec
+        }
+     );
+
+    $('#revenueCounter').flipCounter(
+       "startAnimation", // scroll counter from the current number to the specified number
+       {
+           end_number: GlobalVars.revenue, // the number we want the counter to scroll to
+           easing: jQuery.easing.easeOutCubic, // this easing function to apply to the scroll.
+           duration: 50000, // number of ms animation should take to complete  20 sec
+       }
+    );
+}
+
 window.onload = loadScript;
 
 $(document).ready(function () {
     GlobalVars.startDateUTC = convertUTCDate(GlobalVars.startPoint);
     createPieChart();
     createTimeChart();
-    // Set a callback to run when the Google Visualization API is loaded.
-    // google.setOnLoadCallback(initialPieChart);
+
+    //$.timer(toggleRow1, timerOptions.toogleTime, timerOptions.autostart)
+
+    $('#reservationCounter').flipCounter(
+        {
+            number: GlobalVars.prevReservCount, // the number we want to scroll from
+            end_number: GlobalVars.reservationCount, // the number we want the counter to scroll to
+            numIntegralDigits: 9, // number of places left of the decimal point to maintain
+            numFractionalDigits: 0, // number of places right of the decimal point to maintain
+            digitClass: "counter-digit", // class of the counter digits
+            counterFieldName: "counter-value", // name of the hidden field
+            digitHeight: 40, // the height of each digit in the flipCounter-medium.png sprite image
+            digitWidth: 30, // the width of each digit in the flipCounter-medium.png sprite image
+            imagePath: "Images/flipCounter-medium.png", // the path to the sprite image relative to your html document
+        }
+     );
+
+    $('#revenueCounter').flipCounter(
+       {
+           number: GlobalVars.prevRevenue, // the number we want to scroll from
+           end_number: GlobalVars.revenue, // the number we want the counter to scroll to
+           numIntegralDigits: 5, // number of places left of the decimal point to maintain
+           numFractionalDigits: 2, // number of places right of the decimal point to maintain
+           digitClass: "counter-digit", // class of the counter digits
+           counterFieldName: "counter-value", // name of the hidden field
+           digitHeight: 40, // the height of each digit in the flipCounter-medium.png sprite image
+           digitWidth: 30, // the width of each digit in the flipCounter-medium.png sprite image
+           imagePath: "Images/flipCounter-medium.png", // the path to the sprite image relative to your html document
+       }
+    );
 })
