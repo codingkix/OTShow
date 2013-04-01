@@ -7,6 +7,9 @@
     usReady: false,
     euReady: false,
     asiaReady: false,
+    infoBox: null,
+    infoBoxOptions: null,
+
     revenue: 0.00,
     prevRevenue: 0.00,
     reservationCount: 0,
@@ -55,6 +58,21 @@ function initialGoogleMap() {
     GlobalVars.asiaMap.setCenter(asiaCenter);
     GlobalVars.asiaMap.setZoom(6);
 
+    GlobalVars.infoBoxOptions = {
+        disableAutoPan: false,
+        maxWidth: 0,
+        pixelOffset: new google.maps.Size(-60, -180),
+        zIndex: null,
+        closeBoxMargin: "0",
+        closeBoxURL: "http://www.google.com/intl/en_us/mapfiles/close.gif",
+        infoBoxClearance: new google.maps.Size(1, 1),
+        isHidden: false,
+        pane: "floatPane",
+        enableEventPropagation: false
+    };
+
+    GlobalVars.infoBox = new InfoBox(GlobalVars.infoBoxOptions);
+
     google.maps.event.addListenerOnce(GlobalVars.usMap, 'idle', function () {
         GlobalVars.usReady = true;
         starttimer();
@@ -73,6 +91,11 @@ function loadScript() {
     var script = document.createElement("script");
     script.type = "text/javascript";
     script.src = "http://maps.googleapis.com/maps/api/js?key=" + GlobalVars.googleAPIKey + "&sensor=true&callback=initialGoogleMap";
+    document.body.appendChild(script);
+
+    script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = "http://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobox/src/infobox.js";
     document.body.appendChild(script);
 }
 
@@ -93,8 +116,6 @@ function fetchDataFeeds() {
         GlobalVars.reservationCount += result.TotalReservation;
 
         updateCounters();
-        //$('#revenueCounter').text('$' + GlobalVars.revenue);
-        //$('#reservationCounter').text(GlobalVars.reservationCount);
 
         PieChartVars.consumerSite += result.ConsumerSiteCount;
         PieChartVars.mobileSite += result.MobileSiteCount;
@@ -106,8 +127,7 @@ function fetchDataFeeds() {
         if (PieChartVars.pieReady)
             updatePieChart();
 
-        updateTimeChart(result.TimeGroupCounts);
-
+        //updateTimeChart(result.TimeGroupCounts);
     });
 }
 
@@ -116,12 +136,12 @@ function processReservations(feeds, region) {
         var reservations = feeds.reservations;
         for (var i = 0; i < reservations.length; i++) {
             var latlng = new google.maps.LatLng(reservations[i].latitude, reservations[i].longitude);
-            addMarker(latlng, region, reservations[i].restaurantname, reservations[i].partysize);
+            addMarker(latlng, region, reservations[i]);
         }
     }
 }
 
-function addMarker(latlng, region, restName, partySize) {
+function addMarker(latlng, region, reserv) {
     var map;
     if (region == 'us')
         map = GlobalVars.usMap;
@@ -138,15 +158,26 @@ function addMarker(latlng, region, restName, partySize) {
         icon: 'Images/pin_' + region + '.png'
     });
 
-    var infoWindows = new google.maps.InfoWindow(
-        {
-            content: '<div class="infoBox"><p class="name">' + restName +
-                '</p><p>Party size:<strong>' + partySize + '</strong></p></div>',
-            maxWidth: 100
-        });
+    //generate infobox for each marker
+    var infoBox = $(document.createElement('div'));
+    var restname = $(document.createElement('strong'));
+    restname.text(reserv.restaurantname);
+    infoBox.append(restname);
+    var party = $(document.createElement('span'));
+    party.text('Party size: ' + reserv.partysize);
+    var resDate = $(document.createElement('span'));
+    resDate.text(reserv.ReservationDateString);
+
+    infoBox.append(party).append(resDate);
 
     google.maps.event.addListener(marker, 'click', function () {
-        infoWindows.open(map, marker);
+        GlobalVars.infoBox.close();
+        var img = document.createElement('img');
+        img.src = 'http://www.opentable.com/img/restimages/x6/' + reserv.rid + '.jpg';
+        infoBox.append(img);
+
+        GlobalVars.infoBox.setContent(infoBox.html());
+        GlobalVars.infoBox.open(map, marker);
     });
 }
 
@@ -587,13 +618,15 @@ function updateCounters() {
     );
 }
 
-window.onload = loadScript;
+//window.onload = loadScript;
 
 $(document).ready(function () {
-    GlobalVars.startDateUTC = convertUTCDate(GlobalVars.startPoint);
-    createPieChart();
-    createTimeChart();
 
+    GlobalVars.startDateUTC = convertUTCDate(GlobalVars.startPoint);
+    $(window).load(initialGoogleMap());
+    createPieChart();
+
+    //createTimeChart();
     //$.timer(toggleRow1, timerOptions.toogleTime, timerOptions.autostart)
 
     $('#reservationCounter').flipCounter(
