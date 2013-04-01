@@ -7,8 +7,8 @@
     usReady: false,
     euReady: false,
     asiaReady: false,
-    infoBox: null,
-    infoBoxOptions: null,
+    infoBox: new InfoBox(),
+    //infoBoxOptions: null,
 
     revenue: 0.00,
     prevRevenue: 0.00,
@@ -57,21 +57,6 @@ function initialGoogleMap() {
     GlobalVars.asiaMap = new google.maps.Map(document.getElementById("asiaMapCanvas"), mapOptions);
     GlobalVars.asiaMap.setCenter(asiaCenter);
     GlobalVars.asiaMap.setZoom(6);
-
-    GlobalVars.infoBoxOptions = {
-        disableAutoPan: false,
-        maxWidth: 0,
-        pixelOffset: new google.maps.Size(-60, -180),
-        zIndex: null,
-        closeBoxMargin: "0",
-        closeBoxURL: "http://www.google.com/intl/en_us/mapfiles/close.gif",
-        infoBoxClearance: new google.maps.Size(1, 1),
-        isHidden: false,
-        pane: "floatPane",
-        enableEventPropagation: false
-    };
-
-    GlobalVars.infoBox = new InfoBox(GlobalVars.infoBoxOptions);
 
     google.maps.event.addListenerOnce(GlobalVars.usMap, 'idle', function () {
         GlobalVars.usReady = true;
@@ -143,12 +128,15 @@ function processReservations(feeds, region) {
 
 function addMarker(latlng, region, reserv) {
     var map;
-    if (region == 'us')
+    if (region == 'us') {
         map = GlobalVars.usMap;
-    if (region == 'eu')
+    }
+    if (region == 'eu') {
         map = GlobalVars.euMap;
-    if (region == 'asia')
+    }
+    if (region == 'asia') {
         map = GlobalVars.asiaMap;
+    }
 
     var marker = new google.maps.Marker({
         position: latlng,
@@ -158,25 +146,53 @@ function addMarker(latlng, region, reserv) {
         icon: 'Images/pin_' + region + '.png'
     });
 
-    //generate infobox for each marker
-    var infoBox = $(document.createElement('div'));
-    var restname = $(document.createElement('strong'));
-    restname.text(reserv.restaurantname);
-    infoBox.append(restname);
-    var party = $(document.createElement('span'));
-    party.text('Party size: ' + reserv.partysize);
-    var resDate = $(document.createElement('span'));
-    resDate.text(reserv.ReservationDateString);
-
-    infoBox.append(party).append(resDate);
+    
 
     google.maps.event.addListener(marker, 'click', function () {
         GlobalVars.infoBox.close();
+
+        var infoBoxOptions = {
+            disableAutoPan: false,
+            maxWidth: 0,
+            pixelOffset: new google.maps.Size(-60, -180),
+            zIndex: null,
+            closeBoxMargin: "0",
+            closeBoxURL: "http://www.google.com/intl/en_us/mapfiles/close.gif",
+            infoBoxClearance: new google.maps.Size(1, 1),
+            isHidden: false,
+            pane: "floatPane",
+            enableEventPropagation: false
+        };
+
+        if (region == 'us') {
+          infoBoxOptions.boxClass = 'usInfoBox';
+        }
+        if (region == 'eu') {
+           infoBoxOptions.boxClass = 'euInfoBox';
+        }
+        if (region == 'asia') {
+           infoBoxOptions.boxClass = 'asiaInfoBox';
+        }
+        GlobalVars.infoBox = new InfoBox(infoBoxOptions);
+
+        //generate infobox content for each marker
+        var infoBoxDiv = $(document.createElement('div'));
+        var resvInfo = $(document.createElement('div'));
+        resvInfo.addClass('resvInfo');
+        var restname = $(document.createElement('span'));
+        restname.text(reserv.restaurantname);
+        var party = $(document.createElement('span'));
+        party.text(reserv.partysize + ' People');
+        var resDate = $(document.createElement('span'));
+        resDate.text(reserv.ReservationDateString);
+        resvInfo.append(restname).append(party).append(resDate);
+        infoBoxDiv.append(resvInfo);
         var img = document.createElement('img');
         img.src = 'http://www.opentable.com/img/restimages/x6/' + reserv.rid + '.jpg';
-        infoBox.append(img);
+        img.className = 'restImg';
+        infoBoxDiv.append(img);
 
-        GlobalVars.infoBox.setContent(infoBox.html());
+        GlobalVars.infoBox.setContent(infoBoxDiv.html());
         GlobalVars.infoBox.open(map, marker);
     });
 }
