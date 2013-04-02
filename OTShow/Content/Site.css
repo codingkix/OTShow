@@ -34,33 +34,20 @@ body {
         padding: 30px 10px 10px 20px;
     }
 
-/*#row2 {
-    height: 70%;
-}
-
-    #row2 td {
-        padding: 10px 10px 10px 20px;
-    }*/
-
-#row3 {
+#row2 {
     height: 40%;
 }
 
-    #row3 td:first-child {
+    #row2 td:first-child {
         padding: 10px 10px 30px 20px;
     }
 
-    #row3 td:last-child {
+    #row2 td:last-child {
         padding: 10px 10px 30px 10px;
     }
 
 #usMapCanvas, #euMapCanvas, #asiaMapCanvas, #timeFlowChart {
     height: 100%;
-}
-
-#timeFlowChart {
-    display: none;
-    height: 510px;
 }
 
 #revenueCounter {
@@ -71,7 +58,7 @@ body {
     margin: 10px 0;
 }
 
-#pieChart2 {
+#pieChart {
     float: right;
     width: 300px;
     height: 400px;

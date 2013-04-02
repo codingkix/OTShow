@@ -8,7 +8,6 @@
     euReady: false,
     asiaReady: false,
     infoBox: new InfoBox(),
-    //infoBoxOptions: null,
 
     revenue: 0.00,
     prevRevenue: 0.00,
@@ -37,10 +36,8 @@ var TimeChartVars = {
 
 var timerOptions = {
     time: 60000,
-    toogleTime: 0.15 * 60000,
     autostart: true
 }
-
 
 function initialGoogleMap() {
     var usCenter = new google.maps.LatLng(36.4230, -98.7372);
@@ -111,8 +108,6 @@ function fetchDataFeeds() {
 
         if (PieChartVars.pieReady)
             updatePieChart();
-
-        //updateTimeChart(result.TimeGroupCounts);
     });
 }
 
@@ -145,8 +140,6 @@ function addMarker(latlng, region, reserv) {
         animation: google.maps.Animation.DROP,
         icon: 'Images/pin_' + region + '.png'
     });
-
-    
 
     google.maps.event.addListener(marker, 'click', function () {
         GlobalVars.infoBox.close();
@@ -310,7 +303,7 @@ function createPieChart() {
     });
 
     // Build the chart
-    $('#pieChart2').highcharts({
+    $('#pieChart').highcharts({
         chart: {
             plotBackgroundColor: null,
             plotBorderWidth: null,
@@ -376,26 +369,8 @@ function createPieChart() {
             ]
         }]
     });
-    PieChartVars.highChartPie = $('#pieChart2').highcharts();
+    PieChartVars.highChartPie = $('#pieChart').highcharts();
     PieChartVars.pieReady = true;
-}
-
-function drawChart() {
-    PieChartVars.pieData.setCell(0, 0, "OpenTable.com");
-    PieChartVars.pieData.setCell(1, 0, "Mobile Site");
-    PieChartVars.pieData.setCell(2, 0, "iOS");
-    PieChartVars.pieData.setCell(3, 0, "Android");
-    PieChartVars.pieData.setCell(4, 0, "Yelp");
-    PieChartVars.pieData.setCell(5, 0, "Others");
-
-    PieChartVars.pieData.setCell(0, 1, PieChartVars.consumerSite);
-    PieChartVars.pieData.setCell(1, 1, PieChartVars.mobileSite);
-    PieChartVars.pieData.setCell(2, 1, PieChartVars.iOS);
-    PieChartVars.pieData.setCell(3, 1, PieChartVars.android);
-    PieChartVars.pieData.setCell(4, 1, PieChartVars.yelp);
-    PieChartVars.pieData.setCell(5, 1, PieChartVars.others);
-
-    PieChartVars.pieChart.draw(PieChartVars.pieData, PieChartVars.pieOptions);
 }
 
 function updatePieChart() {
@@ -407,211 +382,8 @@ function updatePieChart() {
     PieChartVars.highChartPie.get('others').update(PieChartVars.others, true);
 }
 
-function createTimeChart() {
-    Highcharts.theme = {
-        colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
-        chart: {
-            backgroundColor: {
-                linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-                stops: [
-                   [0, 'rgb(255, 255, 255)'],
-                   [1, 'rgb(240, 240, 255)']
-                ]
-            },
-            borderWidth: 1,
-            plotBackgroundColor: 'rgba(255, 255, 255, .9)',
-            plotShadow: true,
-            plotBorderWidth: 1
-        },
-        title: {
-            style: {
-                color: '#000',
-                font: 'bold 16px "Trebuchet MS", Verdana, sans-serif'
-            }
-        },
-        subtitle: {
-            style: {
-                color: '#666666',
-                font: 'bold 12px "Trebuchet MS", Verdana, sans-serif'
-            }
-        },
-        xAxis: {
-            gridLineWidth: 1,
-            lineColor: '#000',
-            tickColor: '#000',
-            labels: {
-                style: {
-                    color: '#000',
-                    font: '11px Trebuchet MS, Verdana, sans-serif'
-                }
-            },
-            title: {
-                style: {
-                    color: '#333',
-                    fontWeight: 'bold',
-                    fontSize: '12px',
-                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
-
-                }
-            }
-        },
-        yAxis: {
-            minorTickInterval: 'auto',
-            lineColor: '#000',
-            lineWidth: 1,
-            tickWidth: 1,
-            tickColor: '#000',
-            labels: {
-                style: {
-                    color: '#000',
-                    font: '11px Trebuchet MS, Verdana, sans-serif'
-                }
-            },
-            title: {
-                style: {
-                    color: '#333',
-                    fontWeight: 'bold',
-                    fontSize: '12px',
-                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
-                }
-            }
-        },
-        legend: {
-            itemStyle: {
-                font: '9pt Trebuchet MS, Verdana, sans-serif',
-                color: 'black'
-
-            },
-            itemHoverStyle: {
-                color: '#039'
-            },
-            itemHiddenStyle: {
-                color: 'gray'
-            }
-        },
-        labels: {
-            style: {
-                color: '#99b'
-            }
-        },
-
-        navigation: {
-            buttonOptions: {
-                theme: {
-                    stroke: '#CCCCCC'
-                }
-            }
-        }
-    };
-
-    // Apply the theme
-    var highchartsOptions = Highcharts.setOptions(Highcharts.theme);
-
-    $('#timeFlowChart').highcharts({
-        chart: {
-            zoomType: 'x',
-            spacingRight: 20
-        },
-        title: {
-            text: 'Reservation Timeline'
-        },
-        subtitle: {
-            text: document.ontouchstart === undefined ?
-                'Click and drag in the plot area to zoom in' :
-                'Drag your finger over the plot to zoom in'
-        },
-        xAxis: {
-            type: 'datetime',
-            maxZoom: 14 * 24 * 3600000, // fourteen days
-            title: {
-                text: null
-            }
-        },
-        yAxis: {
-            title: {
-                text: 'Reservation Counts'
-            }
-        },
-        tooltip: {
-            shared: true
-        },
-        legend: {
-            enabled: false
-        },
-        plotOptions: {
-            area: {
-                fillColor: {
-                    linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                    stops: [
-                        [0, Highcharts.getOptions().colors[0]],
-                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-                    ]
-                },
-                lineWidth: 1,
-                marker: {
-                    enabled: false
-                },
-                shadow: false,
-                states: {
-                    hover: {
-                        lineWidth: 1
-                    }
-                },
-                threshold: null
-            }
-        },
-        series: [{
-            type: 'area',
-            name: 'Reservation count',
-            pointInterval: 24 * 3600 * 1000,
-            pointStart: GlobalVars.startDateUTC,
-            data: []
-        }]
-    });
-
-    TimeChartVars.timeChart = $('#timeFlowChart').highcharts();
-}
-
-function updateTimeChart(groupCounts) {
-    var currentData = TimeChartVars.timeChart.series[0].data;
-    var size = groupCounts.length;
-    var max = groupCounts[size - 1].ItemIndex;
-    //hold one year data for now
-    if (max > TimeChartVars.maxRange)
-        max = TimeChartVars.maxRange;
-    var start = null;
-    for (var i = currentData.length; i <= max; i++) {
-        if (currentData[i] == null) {
-            //reset start point to calculate new point date
-            start = new Date(GlobalVars.startPoint.valueOf());
-            TimeChartVars.timeChart.series[0].addPoint([start.setDate(start.getDate() + i - 1), 0]);
-        }
-    }
-
-    for (var j = 0; j < groupCounts.length; j++) {
-        var item = groupCounts[j];
-        if (item.ItemIndex >= 0 && item.ItemIndex <= TimeChartVars.maxRange) {
-            var y = currentData[item.ItemIndex].y;
-            currentData[item.ItemIndex].update(item.CountValue + y, true);
-        }
-    }
-}
-
 function convertUTCDate(date) {
     return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-}
-
-function toggleRow1() {
-    var option = {};
-    if (GlobalVars.showUsMap) {
-        BV
-        $('#usMapCanvas').hide('slide', option, 500, function () { $('#timeFlowChart').show('slide', option, 400) });
-        GlobalVars.showUsMap = false;
-    } else {
-        $('#timeFlowChart').hide('slide', option, 500, function () { $('#usMapCanvas').show('slide', option, 400) });
-        GlobalVars.showUsMap = true;
-    }
-
 }
 
 function updateCounters() {
@@ -620,7 +392,7 @@ function updateCounters() {
         {
             end_number: GlobalVars.reservationCount, // the number we want the counter to scroll to
             easing: jQuery.easing.easeOutCubic, // this easing function to apply to the scroll.
-            duration: 50000, // number of ms animation should take to complete  20 sec
+            duration: 20000, // number of ms animation should take to complete  20 sec
         }
      );
 
@@ -629,21 +401,16 @@ function updateCounters() {
        {
            end_number: GlobalVars.revenue, // the number we want the counter to scroll to
            easing: jQuery.easing.easeOutCubic, // this easing function to apply to the scroll.
-           duration: 50000, // number of ms animation should take to complete  20 sec
+           duration: 20000, // number of ms animation should take to complete  20 sec
        }
     );
 }
-
-//window.onload = loadScript;
 
 $(document).ready(function () {
 
     GlobalVars.startDateUTC = convertUTCDate(GlobalVars.startPoint);
     $(window).load(initialGoogleMap());
     createPieChart();
-
-    //createTimeChart();
-    //$.timer(toggleRow1, timerOptions.toogleTime, timerOptions.autostart)
 
     $('#reservationCounter').flipCounter(
         {
