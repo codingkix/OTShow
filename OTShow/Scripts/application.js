@@ -11,9 +11,10 @@
     infoBox: new InfoBox(),
     markers: [],
     markerCluster: null,
+    prevMarkerIndex: -1,
 
-    revenue: 0.00,
-    prevRevenue: 0.00,
+    revenue: 0,
+    prevRevenue: 0,
     reservationCount: 0,
     prevReservCount: 0,
     startPoint: new Date(),
@@ -40,6 +41,7 @@ var TimeChartVars = {
 }
 
 var timerOptions = {
+    markerShowTime: 7000,
     pieSpinTime: 3000,
     clearTime: 60 * 60 * 1000,  //one hour
     time: 60000,
@@ -393,7 +395,7 @@ function selectPie() {
     PieChartVars.highChartPie.tooltip.refresh(pie);
     PieChartVars.pieIndex++;
     if (PieChartVars.pieIndex >= PieChartVars.pieTotal) {
-       PieChartVars.pieIndex = 0;
+        PieChartVars.pieIndex = 0;
     }
 }
 function updatePieChart() {
@@ -435,6 +437,22 @@ function clearMarkers() {
     }
 }
 
+function showMarkerInfoRandom() {
+    //stop previous bouncing marker
+    if (GlobalVars.prevMarkerIndex >= 0) {
+        GlobalVars.markers[GlobalVars.prevMarkerIndex].setAnimation(null);
+    }
+    //get a new marker bouncing
+    var total = GlobalVars.markers.length;
+    do{
+        var randomIndex = Math.floor(Math.random() * total);
+    } while (randomIndex == GlobalVars.prevMarkerIndex)
+
+    GlobalVars.markers[randomIndex].setAnimation(google.maps.Animation.BOUNCE);
+    google.maps.event.trigger(GlobalVars.markers[randomIndex], 'click');
+    GlobalVars.prevMarkerIndex = randomIndex;
+}
+
 $(document).ready(function () {
 
     GlobalVars.startDateUTC = convertUTCDate(GlobalVars.startPoint);
@@ -444,6 +462,8 @@ $(document).ready(function () {
 
     //slice pie every 3 sec to show data detail 
     $.timer(selectPie, timerOptions.pieSpinTime, timerOptions.autostart);
+
+    $.timer(showMarkerInfoRandom, timerOptions.markerShowTime, timerOptions.autostart);
 
     $('#reservationCounter').flipCounter(
         {
