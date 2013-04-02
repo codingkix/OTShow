@@ -136,6 +136,7 @@
     <Compile Include="Models\DataFeed.cs" />
     <Compile Include="Models\Reservation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Content Include="Content\counter.css" />
     <Content Include="Content\themes\base\images\animated-overlay.gif" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
@@ -199,6 +200,7 @@
     <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
     <Content Include="Content\themes\base\minified\jquery.ui.tooltip.min.css" />
     <Content Include="Images\BG-All.png" />
+    <Content Include="Images\digits.png" />
     <Content Include="Images\flipCounter-medium.png" />
     <Content Include="Images\pin_us.png" />
     <Content Include="Images\pin_eu.png" />
@@ -213,6 +215,7 @@
     <None Include="Properties\PublishProfiles\Opentable.pubxml" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\exporting.js" />
+    <Content Include="Scripts\flipcounter.js" />
     <Content Include="Scripts\highcharts.js" />
     <Content Include="Scripts\infobox.js" />
     <Content Include="Scripts\jquery-1.9.1.js" />
