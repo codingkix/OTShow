@@ -88,7 +88,7 @@ function starttimer() {
 }
 
 function fetchDataFeeds() {
-    $.getJSON('Home/GetAllResults', { startPoint: GlobalVars.startPoint.toUTCString() }, function (result) {
+    $.getJSON('Home/GetAllResults', function (result) {
         processReservations(result.USFeeds, 'us');
         processReservations(result.EUFeeds, 'eu');
         processReservations(result.AsiaFeeds, 'asia');

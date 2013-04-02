@@ -18,6 +18,6 @@ namespace OTShow.Models
         public double longitude { get; set; }
         public int partnerid { get; set; }
         public string partnername { get; set; }
-        public string ReservationDateString { get { return shiftdatetime.ToShortDateString(); } }
+        public string ReservationDateString { get { return shiftdatetime.ToString(); } }
     }
 }

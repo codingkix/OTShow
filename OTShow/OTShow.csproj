@@ -135,7 +135,6 @@
     <Compile Include="Models\AllResults.cs" />
     <Compile Include="Models\DataFeed.cs" />
     <Compile Include="Models\Reservation.cs" />
-    <Compile Include="Models\TimeGroupCount.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="Content\themes\base\images\animated-overlay.gif" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />

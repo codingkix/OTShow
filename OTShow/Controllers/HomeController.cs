@@ -64,9 +64,8 @@ namespace OTShow.Controllers
         /// Action API returning All Json data
         /// </summary>
         /// <returns></returns>
-        public ContentResult GetAllResults(string startPoint)
+        public ContentResult GetAllResults()
         {
-            DateTime start = Convert.ToDateTime(startPoint);
             DataFeed usFeed = GetFeedsByRegion("us");
             DataFeed euFeed = GetFeedsByRegion("eu");
             DataFeed asiaFeed = GetFeedsByRegion("asia");
@@ -92,19 +91,6 @@ namespace OTShow.Controllers
             int yelp = Helper.CountReservationSource(allReservations, "yelp");
             int others = allReservations.Count - consumerSite - iOS - android - mobileSite - yelp;
 
-            //timeflow calculation
-            List<TimeGroupCount> groupCounts = (from resv in allReservations
-                                                group resv by resv.shiftdatetime.ToUniversalTime().Date
-                                                    into timeGroup
-                                                    orderby timeGroup.Key
-                                                    select
-                                                    new TimeGroupCount
-                                                    {
-                                                        GroupTime = timeGroup.Key,
-                                                        CountValue = timeGroup.Count(),
-                                                        ItemIndex = Helper.GetTimeDifference(start, timeGroup.Key)
-                                                    }).ToList();
-
             AllResults allResults = new AllResults
             {
                 USFeeds = usFeed,
@@ -121,8 +107,7 @@ namespace OTShow.Controllers
                 iOSCount = iOS,
                 AndroidCount = android,
                 YelpCount = yelp,
-                OthersCount = others,
-                TimeGroupCounts = groupCounts
+                OthersCount = others
             };
 
             string jsonResult = JsonConvert.SerializeObject(allResults);
