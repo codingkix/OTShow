@@ -17,6 +17,9 @@
     prevRevenue: 0,
     reservationCount: 0,
     prevReservCount: 0,
+    revenueCounter: null,
+    reservCounter: null,
+
     startPoint: new Date(),
     startDateUTC: null,
     showUsMap: true
@@ -35,17 +38,14 @@ var PieChartVars = {
     pieTotal: 6
 }
 
-var TimeChartVars = {
-    timeChart: null,
-    maxRange: 14       //two weeks data
-}
-
 var timerOptions = {
-    markerShowTime: 7000,
-    pieSpinTime: 3000,
+    markerShowTime: 7000,   //7 sec
+    pieSpinTime: 3000,      //3 sec
     clearTime: 60 * 60 * 1000,  //one hour
-    time: 60000,
-    autostart: true
+    time: 60000,        //1 min
+    autostart: true,
+    flipTime: 10,    //10 sec
+    flipPace: 200,      //200 ms
 }
 
 function initialGoogleMap() {
@@ -412,23 +412,9 @@ function convertUTCDate(date) {
 }
 
 function updateCounters() {
-    $('#reservationCounter').flipCounter(
-        "startAnimation", // scroll counter from the current number to the specified number
-        {
-            end_number: GlobalVars.reservationCount, // the number we want the counter to scroll to
-            easing: jQuery.easing.easeOutCubic, // this easing function to apply to the scroll.
-            duration: 10000, // number of ms animation should take to complete  10 sec
-        }
-     );
+    GlobalVars.reservCounter.incrementTo(GlobalVars.reservationCount, timerOptions.flipTime, timerOptions.flipPace);
 
-    $('#revenueCounter').flipCounter(
-       "startAnimation", // scroll counter from the current number to the specified number
-       {
-           end_number: GlobalVars.revenue, // the number we want the counter to scroll to
-           easing: jQuery.easing.easeOutCubic, // this easing function to apply to the scroll.
-           duration: 10000, // number of ms animation should take to complete  10 sec
-       }
-    );
+    GlobalVars.revenueCounter.incrementTo(GlobalVars.revenue, timerOptions.flipTime, timerOptions.flipPace);
 }
 
 function clearMarkers() {
@@ -444,7 +430,7 @@ function showMarkerInfoRandom() {
     }
     //get a new marker bouncing
     var total = GlobalVars.markers.length;
-    do{
+    do {
         var randomIndex = Math.floor(Math.random() * total);
     } while (randomIndex == GlobalVars.prevMarkerIndex)
 
@@ -465,33 +451,8 @@ $(document).ready(function () {
 
     $.timer(showMarkerInfoRandom, timerOptions.markerShowTime, timerOptions.autostart);
 
-    $('#reservationCounter').flipCounter(
-        {
-            number: GlobalVars.prevReservCount, // the number we want to scroll from
-            end_number: GlobalVars.reservationCount, // the number we want the counter to scroll to
-            numIntegralDigits: 9, // number of places left of the decimal point to maintain
-            numFractionalDigits: 0, // number of places right of the decimal point to maintain
-            digitClass: "counter-digit", // class of the counter digits
-            counterFieldName: "counter-value", // name of the hidden field
-            digitHeight: 40, // the height of each digit in the flipCounter-medium.png sprite image
-            digitWidth: 30, // the width of each digit in the flipCounter-medium.png sprite image
-            imagePath: GlobalVars.siteName + "Images/flipCounter-medium.png", // the path to the sprite image relative to your html document
-        }
-     );
-
-    $('#revenueCounter').flipCounter(
-       {
-           number: GlobalVars.prevRevenue, // the number we want to scroll from
-           end_number: GlobalVars.revenue, // the number we want the counter to scroll to
-           numIntegralDigits: 8, // number of places left of the decimal point to maintain
-           numFractionalDigits: 0, // number of places right of the decimal point to maintain
-           digitClass: "counter-digit", // class of the counter digits
-           counterFieldName: "counter-value", // name of the hidden field
-           digitHeight: 40, // the height of each digit in the flipCounter-medium.png sprite image
-           digitWidth: 30, // the width of each digit in the flipCounter-medium.png sprite image
-           imagePath: GlobalVars.siteName + "Images/flipCounter-medium.png", // the path to the sprite image relative to your html document
-       }
-    );
+    GlobalVars.reservCounter = new flipCounter('reservationCounter', { auto: false });
+    GlobalVars.revenueCounter = new flipCounter('revenueCounter', { auto: false });
 
     //clear markers every hour
     $.timer(clearMarkers, timerOptions.clearTime, timerOptions.autostart)

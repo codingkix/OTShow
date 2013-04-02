@@ -12,8 +12,7 @@ namespace OTShow
                 .Include("~/Scripts/highcharts.js")
                 .Include("~/Scripts/exporting.js")
                 .Include("~/Scripts/jquery.timer.js")
-                .Include("~/Scripts/jquery.easing.1.3.js")
-                .Include("~/Scripts/jquery.flipCounter.1.2.js")
+                .Include("~/Scripts/flipcounter.js")
                 .Include("~/Scripts/application.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
