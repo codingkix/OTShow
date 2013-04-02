@@ -1,5 +1,6 @@
 ﻿var GlobalVars = {
     googleAPIKey: 'AIzaSyCKe9-BfEAwyaR2Qb7XIRkq4FccIf4HOIM',
+    siteName: '/OTShow/',
     timer: null,
     usMap: null,
     euMap: null,
@@ -8,6 +9,8 @@
     euReady: false,
     asiaReady: false,
     infoBox: new InfoBox(),
+    markers: [],
+    markerCluster: null,
 
     revenue: 0.00,
     prevRevenue: 0.00,
@@ -26,7 +29,9 @@ var PieChartVars = {
     yelp: 1,
     others: 1,
     highChartPie: null,
-    pieReady: false
+    pieReady: false,
+    pieIndex: 0,
+    pieTotal: 6
 }
 
 var TimeChartVars = {
@@ -35,6 +40,8 @@ var TimeChartVars = {
 }
 
 var timerOptions = {
+    pieSpinTime: 3000,
+    clearTime: 60 * 60 * 1000,  //one hour
     time: 60000,
     autostart: true
 }
@@ -42,7 +49,7 @@ var timerOptions = {
 function initialGoogleMap() {
     var usCenter = new google.maps.LatLng(36.4230, -98.7372);
     var euCenter = new google.maps.LatLng(52.4230, 4.7372);
-    var asiaCenter = new google.maps.LatLng(36.4230, 142.7372);
+    var asiaCenter = new google.maps.LatLng(36.4230, 137.7372);
     var mapOptions = {
         zoom: 5,
         mapTypeId: google.maps.MapTypeId.ROADMAP
@@ -88,7 +95,7 @@ function starttimer() {
 }
 
 function fetchDataFeeds() {
-    $.getJSON('Home/GetAllResults', function (result) {
+    $.getJSON(GlobalVars.siteName + 'Home/GetAllResults', function (result) {
         processReservations(result.USFeeds, 'us');
         processReservations(result.EUFeeds, 'eu');
         processReservations(result.AsiaFeeds, 'asia');
@@ -106,40 +113,45 @@ function fetchDataFeeds() {
         PieChartVars.yelp += result.YelpCount;
         PieChartVars.others += result.OthersCount;
 
-        if (PieChartVars.pieReady)
+        if (PieChartVars.pieReady) {
             updatePieChart();
+        }
     });
 }
 
 function processReservations(feeds, region) {
     if (feeds != null) {
+        var map;
+        if (region == 'us') {
+            map = GlobalVars.usMap;
+        }
+        if (region == 'eu') {
+            map = GlobalVars.euMap;
+        }
+        if (region == 'asia') {
+            map = GlobalVars.asiaMap;
+        }
+
         var reservations = feeds.reservations;
         for (var i = 0; i < reservations.length; i++) {
             var latlng = new google.maps.LatLng(reservations[i].latitude, reservations[i].longitude);
-            addMarker(latlng, region, reservations[i]);
+            addMarker(latlng, region, map, reservations[i]);
         }
+
+        GlobalVars.markerCluster = new MarkerClusterer(map, GlobalVars.markers);
     }
 }
 
-function addMarker(latlng, region, reserv) {
-    var map;
-    if (region == 'us') {
-        map = GlobalVars.usMap;
-    }
-    if (region == 'eu') {
-        map = GlobalVars.euMap;
-    }
-    if (region == 'asia') {
-        map = GlobalVars.asiaMap;
-    }
+function addMarker(latlng, region, map, reserv) {
 
     var marker = new google.maps.Marker({
         position: latlng,
-        map: map,
         draggable: false,
         animation: google.maps.Animation.DROP,
-        icon: 'Images/pin_' + region + '.png'
+        icon: GlobalVars.siteName + 'Images/pin_' + region + '.png'
     });
+
+    GlobalVars.markers.push(marker);
 
     google.maps.event.addListener(marker, 'click', function () {
         GlobalVars.infoBox.close();
@@ -158,13 +170,13 @@ function addMarker(latlng, region, reserv) {
         };
 
         if (region == 'us') {
-          infoBoxOptions.boxClass = 'usInfoBox';
+            infoBoxOptions.boxClass = 'usInfoBox';
         }
         if (region == 'eu') {
-           infoBoxOptions.boxClass = 'euInfoBox';
+            infoBoxOptions.boxClass = 'euInfoBox';
         }
         if (region == 'asia') {
-           infoBoxOptions.boxClass = 'asiaInfoBox';
+            infoBoxOptions.boxClass = 'asiaInfoBox';
         }
         GlobalVars.infoBox = new InfoBox(infoBoxOptions);
 
@@ -347,9 +359,7 @@ function createPieChart() {
                 {
                     id: 'ios',
                     name: 'iOS',
-                    y: PieChartVars.iOS,
-                    sliced: true,
-                    selected: true
+                    y: PieChartVars.iOS
                 },
                 {
                     id: 'android',
@@ -371,8 +381,21 @@ function createPieChart() {
     });
     PieChartVars.highChartPie = $('#pieChart').highcharts();
     PieChartVars.pieReady = true;
+    PieChartVars.pieTotal = PieChartVars.highChartPie.series[0].data.length;
 }
 
+function selectPie() {
+    if (PieChartVars.pieIndex > 0) {
+        PieChartVars.highChartPie.tooltip.hide();
+    }
+    var pie = PieChartVars.highChartPie.series[0].data[PieChartVars.pieIndex];
+    pie.select(true, false);
+    PieChartVars.highChartPie.tooltip.refresh(pie);
+    PieChartVars.pieIndex++;
+    if (PieChartVars.pieIndex >= PieChartVars.pieTotal) {
+       PieChartVars.pieIndex = 0;
+    }
+}
 function updatePieChart() {
     PieChartVars.highChartPie.get('opentable').update(PieChartVars.consumerSite, true);
     PieChartVars.highChartPie.get('mobilesite').update(PieChartVars.mobileSite, true);
@@ -392,7 +415,7 @@ function updateCounters() {
         {
             end_number: GlobalVars.reservationCount, // the number we want the counter to scroll to
             easing: jQuery.easing.easeOutCubic, // this easing function to apply to the scroll.
-            duration: 20000, // number of ms animation should take to complete  20 sec
+            duration: 10000, // number of ms animation should take to complete  10 sec
         }
      );
 
@@ -401,16 +424,26 @@ function updateCounters() {
        {
            end_number: GlobalVars.revenue, // the number we want the counter to scroll to
            easing: jQuery.easing.easeOutCubic, // this easing function to apply to the scroll.
-           duration: 20000, // number of ms animation should take to complete  20 sec
+           duration: 10000, // number of ms animation should take to complete  10 sec
        }
     );
+}
+
+function clearMarkers() {
+    if (GlobalVars.markerCluster) {
+        GlobalVars.markerCluster.clearMarkers();
+    }
 }
 
 $(document).ready(function () {
 
     GlobalVars.startDateUTC = convertUTCDate(GlobalVars.startPoint);
     $(window).load(initialGoogleMap());
+
     createPieChart();
+
+    //slice pie every 3 sec to show data detail 
+    $.timer(selectPie, timerOptions.pieSpinTime, timerOptions.autostart);
 
     $('#reservationCounter').flipCounter(
         {
@@ -422,7 +455,7 @@ $(document).ready(function () {
             counterFieldName: "counter-value", // name of the hidden field
             digitHeight: 40, // the height of each digit in the flipCounter-medium.png sprite image
             digitWidth: 30, // the width of each digit in the flipCounter-medium.png sprite image
-            imagePath: "Images/flipCounter-medium.png", // the path to the sprite image relative to your html document
+            imagePath: GlobalVars.siteName + "Images/flipCounter-medium.png", // the path to the sprite image relative to your html document
         }
      );
 
@@ -430,13 +463,16 @@ $(document).ready(function () {
        {
            number: GlobalVars.prevRevenue, // the number we want to scroll from
            end_number: GlobalVars.revenue, // the number we want the counter to scroll to
-           numIntegralDigits: 5, // number of places left of the decimal point to maintain
-           numFractionalDigits: 2, // number of places right of the decimal point to maintain
+           numIntegralDigits: 8, // number of places left of the decimal point to maintain
+           numFractionalDigits: 0, // number of places right of the decimal point to maintain
            digitClass: "counter-digit", // class of the counter digits
            counterFieldName: "counter-value", // name of the hidden field
            digitHeight: 40, // the height of each digit in the flipCounter-medium.png sprite image
            digitWidth: 30, // the width of each digit in the flipCounter-medium.png sprite image
-           imagePath: "Images/flipCounter-medium.png", // the path to the sprite image relative to your html document
+           imagePath: GlobalVars.siteName + "Images/flipCounter-medium.png", // the path to the sprite image relative to your html document
        }
     );
+
+    //clear markers every hour
+    $.timer(clearMarkers, timerOptions.clearTime, timerOptions.autostart)
 })

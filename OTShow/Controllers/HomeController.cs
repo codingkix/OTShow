@@ -78,9 +78,9 @@ namespace OTShow.Controllers
                 allReservations.AddRange(asiaFeed.reservations);
 
             //Revenue calculation
-            decimal usRevenue = usFeed != null ? Helper.CountRevenue(usFeed.reservations) : 0.00M;
-            decimal euRevenue = euFeed != null ? Helper.CountRevenue(euFeed.reservations) : 0.00M;
-            decimal asiaRevenue = asiaFeed != null ? Helper.CountRevenue(asiaFeed.reservations) : 0.00M;
+            int usRevenue = usFeed != null ? Helper.CountRevenue(usFeed.reservations) : 0;
+            int euRevenue = euFeed != null ? Helper.CountRevenue(euFeed.reservations) : 0;
+            int asiaRevenue = asiaFeed != null ? Helper.CountRevenue(asiaFeed.reservations) : 0;
 
             //Piechart calculation
             int consumerSite = Helper.CountReservationSource(allReservations, "opentable.com");

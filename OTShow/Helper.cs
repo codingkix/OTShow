@@ -14,7 +14,7 @@ namespace OTShow
 
         public static string GetFeedsUrl(string region)
         {
-            switch(region)
+            switch (region)
             {
                 case "us":
                     return ConfigurationManager.AppSettings["USFeedsUrl"].ToString();
@@ -27,10 +27,10 @@ namespace OTShow
             }
         }
 
-        public static decimal CountRevenue(List<Reservation> reservations)
+        public static int CountRevenue(List<Reservation> reservations)
         {
-           return reservations.Count(r => r.billingtype == "standard") * Helper.StandardPay +
-                  reservations.Count(r => r.billingtype != "standard") * Helper.OtherPay;
+            return reservations.Count(r => r.billingtype == "standard") * Helper.StandardPay +
+                  Convert.ToInt32(reservations.Count(r => r.billingtype != "standard") * Helper.OtherPay);
         }
 
         public static int CountReservationSource(List<Reservation> reservations, string sourceName)
