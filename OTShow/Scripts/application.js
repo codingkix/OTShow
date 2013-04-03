@@ -45,7 +45,7 @@ var PieChartVars = {
 }
 
 var timerOptions = {
-    markerShowTime: 7000,   //7 sec
+    markerShowTime: 9000,   //9 sec
     pieSpinTime: 3000,      //3 sec
     clearTime: 45 * 60 * 1000,  //45 min
     time: 60000,        //1 min
@@ -55,20 +55,16 @@ var timerOptions = {
 }
 
 function initialGoogleMap() {
-    var usCenter = new google.maps.LatLng(36.4230, -98.7372);
-    var euCenter = new google.maps.LatLng(52.4230, 4.7372);
-    var asiaCenter = new google.maps.LatLng(36.4230, 137.7372);
     var mapOptions = {
         zoom: 5,
         mapTypeId: google.maps.MapTypeId.ROADMAP
     }
     GlobalVars.usMap = new google.maps.Map(document.getElementById("usMapCanvas"), mapOptions);
-    GlobalVars.usMap.setCenter(usCenter);
     GlobalVars.euMap = new google.maps.Map(document.getElementById("euMapCanvas"), mapOptions);
-    GlobalVars.euMap.setCenter(euCenter);
     GlobalVars.asiaMap = new google.maps.Map(document.getElementById("asiaMapCanvas"), mapOptions);
-    GlobalVars.asiaMap.setCenter(asiaCenter);
     GlobalVars.asiaMap.setZoom(6);
+
+    setMapsCenter();
 
     google.maps.event.addListenerOnce(GlobalVars.usMap, 'idle', function () {
         GlobalVars.usReady = true;
@@ -82,6 +78,15 @@ function initialGoogleMap() {
         GlobalVars.asiaReady = true;
         starttimer();
     });
+}
+
+function setMapsCenter() {
+    var usCenter = new google.maps.LatLng(36.4230, -98.7372);
+    var euCenter = new google.maps.LatLng(52.4230, 4.7372);
+    var asiaCenter = new google.maps.LatLng(36.4230, 137.7372);
+    GlobalVars.usMap.setCenter(usCenter);
+    GlobalVars.euMap.setCenter(euCenter);
+    GlobalVars.asiaMap.setCenter(asiaCenter);
 }
 
 function loadScript() {
@@ -106,6 +111,9 @@ function starttimer() {
 
 function fetchDataFeeds() {
     $.getJSON(GlobalVars.siteName + 'Home/GetAllResults', function (result) {
+
+        setMapsCenter();
+
         processReservations(result.USFeeds, 'us');
         processReservations(result.EUFeeds, 'eu');
         processReservations(result.AsiaFeeds, 'asia');
@@ -145,7 +153,7 @@ function processReservations(feeds, region) {
         if (region == 'asia') {
             markers = getMarkerArray(feeds.reservations, region, GlobalVars.asiaMap);
             $.merge(GlobalVars.asiaMarkers, markers);
-            GlobalVars.asiaMarkerCluster = new MarkerClusterer(GlobalVars.usMap, GlobalVars.asiaMarkers);
+            GlobalVars.asiaMarkerCluster = new MarkerClusterer(GlobalVars.asiaMap, GlobalVars.asiaMarkers);
         }
 
         $.merge(GlobalVars.totalMarkers, markers);
@@ -480,11 +488,12 @@ $(document).ready(function () {
     //slice pie every 3 sec to show data detail 
     $.timer(selectPie, timerOptions.pieSpinTime, timerOptions.autostart);
 
+    //show marker infobox random every 7 sec
     $.timer(showMarkerInfoRandom, timerOptions.markerShowTime, timerOptions.autostart);
 
     GlobalVars.reservCounter = new flipCounter('reservationCounter', { auto: false });
     GlobalVars.revenueCounter = new flipCounter('revenueCounter', { auto: false });
 
-    //clear markers every hour
+    //clear markers every 45 minutes
     $.timer(clearMarkers, timerOptions.clearTime, timerOptions.autostart)
 })
