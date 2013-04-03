@@ -128,25 +128,25 @@ function fetchDataFeeds() {
 }
 
 function processReservations(feeds, region) {
+    var markers = null;
     if (feeds != null) {
         if (region == 'us') {
-            $.merge(GlobalVars.usMarkers, getMarkerArray(feeds.reservations, region, GlobalVars.usMap));
+            markers = getMarkerArray(feeds.reservations, region, GlobalVars.usMap);
+            $.merge(GlobalVars.usMarkers, markers);
             GlobalVars.usMarkerCluster = new MarkerClusterer(GlobalVars.usMap, GlobalVars.usMarkers);
-
-            $.merge(GlobalVars.totalMarkers, GlobalVars.usMarkers);
         }
         if (region == 'eu') {
-            $.merge(GlobalVars.euMarkers, getMarkerArray(feeds.reservations, region, GlobalVars.euMap));
+            markers = getMarkerArray(feeds.reservations, region, GlobalVars.euMap);
+            $.merge(GlobalVars.euMarkers, markers);
             GlobalVars.euMarkerCluster = new MarkerClusterer(GlobalVars.euMap, GlobalVars.euMarkers);
-
-            $.merge(GlobalVars.totalMarkers, GlobalVars.euMarkers);
         }
         if (region == 'asia') {
-            $.merge(GlobalVars.asiaMarkers, getMarkerArray(feeds.reservations, region, GlobalVars.asiaMap));
+            markers = getMarkerArray(feeds.reservations, region, GlobalVars.asiaMap);
+            $.merge(GlobalVars.asiaMarkers, markers);
             GlobalVars.asiaMarkerCluster = new MarkerClusterer(GlobalVars.usMap, GlobalVars.asiaMarkers);
-
-            $.merge(GlobalVars.totalMarkers, GlobalVars.asiaMarkers);
         }
+
+        $.merge(GlobalVars.totalMarkers, markers);
     }
 }
 
