@@ -9,8 +9,14 @@
     euReady: false,
     asiaReady: false,
     infoBox: new InfoBox(),
-    markers: [],
-    markerCluster: null,
+    usMarkers: [],
+    euMarkers: [],
+    asiaMarkers: [],
+    totalMarkers: [],
+
+    usMarkerCluster: null,
+    euMarkerCluster: null,
+    asiaMarkerCluster: null,
     prevMarkerIndex: -1,
 
     revenue: 0,
@@ -41,7 +47,7 @@ var PieChartVars = {
 var timerOptions = {
     markerShowTime: 7000,   //7 sec
     pieSpinTime: 3000,      //3 sec
-    clearTime: 60 * 60 * 1000,  //one hour
+    clearTime: 30 * 60 * 1000,  //half hour
     time: 60000,        //1 min
     autostart: true,
     flipTime: 10,    //10 sec
@@ -123,37 +129,44 @@ function fetchDataFeeds() {
 
 function processReservations(feeds, region) {
     if (feeds != null) {
-        var map;
         if (region == 'us') {
-            map = GlobalVars.usMap;
+            $.merge(GlobalVars.usMarkers, getMarkerArray(feeds.reservations, region, GlobalVars.usMap));
+            GlobalVars.usMarkerCluster = new MarkerClusterer(GlobalVars.usMap, GlobalVars.usMarkers);
+
+            $.merge(GlobalVars.totalMarkers, GlobalVars.usMarkers);
         }
         if (region == 'eu') {
-            map = GlobalVars.euMap;
+            $.merge(GlobalVars.euMarkers, getMarkerArray(feeds.reservations, region, GlobalVars.euMap));
+            GlobalVars.euMarkerCluster = new MarkerClusterer(GlobalVars.euMap, GlobalVars.euMarkers);
+
+            $.merge(GlobalVars.totalMarkers, GlobalVars.euMarkers);
         }
         if (region == 'asia') {
-            map = GlobalVars.asiaMap;
-        }
+            $.merge(GlobalVars.asiaMarkers, getMarkerArray(feeds.reservations, region, GlobalVars.asiaMap));
+            GlobalVars.asiaMarkerCluster = new MarkerClusterer(GlobalVars.usMap, GlobalVars.asiaMarkers);
 
-        var reservations = feeds.reservations;
-        for (var i = 0; i < reservations.length; i++) {
-            var latlng = new google.maps.LatLng(reservations[i].latitude, reservations[i].longitude);
-            addMarker(latlng, region, map, reservations[i]);
+            $.merge(GlobalVars.totalMarkers, GlobalVars.asiaMarkers);
         }
-
-        GlobalVars.markerCluster = new MarkerClusterer(map, GlobalVars.markers);
     }
 }
 
-function addMarker(latlng, region, map, reserv) {
+function getMarkerArray(reservations, region, map) {
+    var markers = [];
+    for (var i = 0; i < reservations.length; i++) {
+        var marker = createMarker(region, map, reservations[i]);
+        markers.push(marker);
+    }
+    return markers;
+}
 
+function createMarker(region, map, reserv) {
+    var latlng = new google.maps.LatLng(reserv.latitude, reserv.longitude);
     var marker = new google.maps.Marker({
         position: latlng,
         draggable: false,
         animation: google.maps.Animation.DROP,
         icon: GlobalVars.siteName + 'Images/pin_' + region + '.png'
     });
-
-    GlobalVars.markers.push(marker);
 
     google.maps.event.addListener(marker, 'click', function () {
         GlobalVars.infoBox.close();
@@ -202,6 +215,7 @@ function addMarker(latlng, region, map, reserv) {
         GlobalVars.infoBox.setContent(infoBoxDiv.html());
         GlobalVars.infoBox.open(map, marker);
     });
+    return marker;
 }
 
 function createPieChart() {
@@ -418,25 +432,36 @@ function updateCounters() {
 }
 
 function clearMarkers() {
-    if (GlobalVars.markerCluster) {
-        GlobalVars.markerCluster.clearMarkers();
+    if (GlobalVars.usMarkerCluster) {
+        GlobalVars.usMarkerCluster.clearMarkers();
     }
+    if (GlobalVars.asiaMarkerCluster) {
+        GlobalVars.asiaMarkerCluster.clearMarkers();
+    }
+    if (GlobalVars.euMarkerCluster) {
+        GlobalVars.euMarkerCluster.clearMarkers();
+    }
+
+    GlobalVars.totalMarkers = [];
+    GlobalVars.prevMarkerIndex = -1;
 }
 
 function showMarkerInfoRandom() {
     //stop previous bouncing marker
     if (GlobalVars.prevMarkerIndex >= 0) {
-        GlobalVars.markers[GlobalVars.prevMarkerIndex].setAnimation(null);
+        GlobalVars.totalMarkers[GlobalVars.prevMarkerIndex].setAnimation(null);
     }
     //get a new marker bouncing
-    var total = GlobalVars.markers.length;
-    do {
-        var randomIndex = Math.floor(Math.random() * total);
-    } while (randomIndex == GlobalVars.prevMarkerIndex)
+    var total = GlobalVars.totalMarkers.length;
+    if (total > 0) {
+        do {
+            var randomIndex = Math.floor(Math.random() * total);
+        } while (randomIndex == GlobalVars.prevMarkerIndex)
 
-    GlobalVars.markers[randomIndex].setAnimation(google.maps.Animation.BOUNCE);
-    google.maps.event.trigger(GlobalVars.markers[randomIndex], 'click');
-    GlobalVars.prevMarkerIndex = randomIndex;
+        GlobalVars.totalMarkers[randomIndex].setAnimation(google.maps.Animation.BOUNCE);
+        google.maps.event.trigger(GlobalVars.totalMarkers[randomIndex], 'click');
+        GlobalVars.prevMarkerIndex = randomIndex;
+    }
 }
 
 $(document).ready(function () {

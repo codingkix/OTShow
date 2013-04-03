@@ -52,11 +52,7 @@ body {
     height: 100%;
 }
 
-#revenueCounter, #reservationCounter {
-    margin: 10px 0;
-    width: 100%;
-    height: 120px;
-}
+
 
 #pieChart {
     float: right;
@@ -135,12 +131,19 @@ body {
             margin-bottom: 10px;
         }
 
-#reservationCounter {
-    width: 98%;
+#revenueCounter, #reservationCounter {
+    height: 103px;
 }
 
 #revenueCounter {
-    width: 98%;
+    display: inline-block;
+}
+
+#dollar {
+    display: inline-block;
+    width: 53px;
+    height: 103px;
+    background: url(../Images/digits.png) 0 -1030px no-repeat;
 }
 
 /*Flip Counter*/
@@ -152,7 +155,7 @@ body {
 }
 
 .flip-counter li {
-    background: url(http://cnanney-files.s3.amazonaws.com/journal/apple-counter-revisited/digits.png) 0 0 no-repeat;
+    background: url(../Images/digits.png) 0 0 no-repeat;
 }
 
     .flip-counter li.t {
