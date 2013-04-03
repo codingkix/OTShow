@@ -26,7 +26,7 @@
     revenueCounter: null,
     reservCounter: null,
 
-    startPoint: new Date(),
+    startPoint: null,
     startDateUTC: null,
     showUsMap: true
 }
@@ -47,7 +47,7 @@ var PieChartVars = {
 var timerOptions = {
     markerShowTime: 7000,   //7 sec
     pieSpinTime: 3000,      //3 sec
-    clearTime: 30 * 60 * 1000,  //half hour
+    clearTime: 45 * 60 * 1000,  //45 min
     time: 60000,        //1 min
     autostart: true,
     flipTime: 10,    //10 sec
@@ -98,6 +98,8 @@ function loadScript() {
 
 function starttimer() {
     if (GlobalVars.usReady && GlobalVars.euReady && GlobalVars.asiaReady) {
+        GlobalVars.startPoint = new Date();
+        $('#startPoint').text(convertDateString(GlobalVars.startPoint));
         GlobalVars.timer = $.timer(fetchDataFeeds, timerOptions.time, timerOptions.autostart).once();
     }
 }
@@ -425,6 +427,11 @@ function convertUTCDate(date) {
     return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 }
 
+function convertDateString(date) {
+    return date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate() + ' '
+        + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+}
+
 function updateCounters() {
     GlobalVars.reservCounter.incrementTo(GlobalVars.reservationCount, timerOptions.flipTime, timerOptions.flipPace);
 
@@ -448,11 +455,12 @@ function clearMarkers() {
 
 function showMarkerInfoRandom() {
     //stop previous bouncing marker
-    if (GlobalVars.prevMarkerIndex >= 0) {
+    var total = GlobalVars.totalMarkers.length;
+    if (GlobalVars.prevMarkerIndex >= 0 && total > 0) {
         GlobalVars.totalMarkers[GlobalVars.prevMarkerIndex].setAnimation(null);
     }
+
     //get a new marker bouncing
-    var total = GlobalVars.totalMarkers.length;
     if (total > 0) {
         do {
             var randomIndex = Math.floor(Math.random() * total);
@@ -465,8 +473,6 @@ function showMarkerInfoRandom() {
 }
 
 $(document).ready(function () {
-
-    GlobalVars.startDateUTC = convertUTCDate(GlobalVars.startPoint);
     $(window).load(initialGoogleMap());
 
     createPieChart();

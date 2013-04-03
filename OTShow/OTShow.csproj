@@ -201,7 +201,6 @@
     <Content Include="Content\themes\base\minified\jquery.ui.tooltip.min.css" />
     <Content Include="Images\BG-All.png" />
     <Content Include="Images\digits.png" />
-    <Content Include="Images\flipCounter-medium.png" />
     <Content Include="Images\pin_us.png" />
     <Content Include="Images\pin_eu.png" />
     <Content Include="Images\pin_asia.png" />

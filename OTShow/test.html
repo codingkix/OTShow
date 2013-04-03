@@ -11,6 +11,10 @@
             var myCounter = new flipCounter('counter', { auto: false });
 
             var myCounter2 = new flipCounter('counter2', { auto: false });
+            var date = new Date();
+            var dateStr = date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate() + ' '
+        + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+            $('#startPoint').text(dateStr);
 
             $('#btnAdd').click(function () {
                 var num = Math.floor(Math.random() * 50) + 100;
@@ -44,12 +48,26 @@
             height: 103px;
             background: url(http://cnanney-files.s3.amazonaws.com/journal/apple-counter-revisited/digits.png) 0 -1030px no-repeat;
         }
+
+        #startPoint {
+            font-weight:bold;
+            font-size: 32px;
+            font-style:italic;
+        }
+
+        .counterTitle {
+            font-weight: bold;
+            font-size: 26px;
+        }
     </style>
 </head>
 <body>
     <div id="wrapper">
+        <div><p class="counterTitle">Counting Start:</p><p id="startPoint"></p></div>
+        <p class="counterTitle">Revenue:</p> 
         <div id="dollar"></div>
         <div id="counter" class="flip-counter"></div>
+        <p class="counterTitle">Reservation Count:</p>
         <div id="counter2" class="flip-counter"></div>
     </div>
     <div>

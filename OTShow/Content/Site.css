@@ -23,7 +23,7 @@ body {
     float: right;
     width: 20%;
     height: 100%;
-    padding-top: 30px;
+    padding-top: 5px;
 }
 
 #row1 {
@@ -144,6 +144,20 @@ body {
     width: 53px;
     height: 103px;
     background: url(../Images/digits.png) 0 -1030px no-repeat;
+}
+
+#startPoint {
+    font-weight: bold;
+    font-size: 28px;
+    font-style: italic;
+    line-height: 8px;
+}
+
+.counterTitle {
+    font-weight: bold;
+    font-size: 20px;
+    line-height: 0px;
+    color:#47894d
 }
 
 /*Flip Counter*/
